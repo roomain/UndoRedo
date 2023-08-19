@@ -9,5 +9,8 @@
 
 // ajouter les en-têtes à précompiler ici
 #include "framework.h"
+#include "RTTIException.h"
+#include "RTTIDefinition.h"
+#include "ProtocolExtension.h"
 
 #endif //PCH_H

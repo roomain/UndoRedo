@@ -13,6 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\RTTI">
+      <UniqueIdentifier>{2b31d16e-c503-4b89-aadb-5253e644b7ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\RTTI">
+      <UniqueIdentifier>{9842ae1b-9c95-4323-b285-ba4b4570dc56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Stream">
+      <UniqueIdentifier>{c8ba23bf-a357-41df-b181-ffd3dd957238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Stream">
+      <UniqueIdentifier>{f73a0cb6-181d-4aec-9ff5-58d91a66464e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Undo/Redo">
+      <UniqueIdentifier>{68417592-dade-4a4e-9f68-d41ca4ff873c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Undo/Redo">
+      <UniqueIdentifier>{d6966223-d657-4adb-9de3-f819e4d5ee3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Memory">
+      <UniqueIdentifier>{ccaea05b-0d23-4134-b245-2fcb6b41e216}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -24,32 +45,56 @@
     <ClInclude Include="UndoRedo_globals.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="MShared_ptr.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="RecordAssertion.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Record.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="IRecordObject.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="IInputStream.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="IOutputStream.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="InputBinStream.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="OutputBinStream.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="BinaryBuffer.h">
       <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtocolExtension.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Exception.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="RTTIDefinition.h">
+      <Filter>Fichiers d%27en-tête\RTTI</Filter>
+    </ClInclude>
+    <ClInclude Include="RTTIDefinition_macros.h">
+      <Filter>Fichiers d%27en-tête\RTTI</Filter>
+    </ClInclude>
+    <ClInclude Include="RTTIException.h">
+      <Filter>Fichiers d%27en-tête\RTTI</Filter>
+    </ClInclude>
+    <ClInclude Include="RTTIException_macro.h">
+      <Filter>Fichiers d%27en-tête\RTTI</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTTIDefinition.h">
+      <Filter>Fichiers d%27en-tête\RTTI</Filter>
+    </ClInclude>
+    <ClInclude Include="IOutputStream.h">
+      <Filter>Fichiers d%27en-tête\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="InputBinStream.h">
+      <Filter>Fichiers d%27en-tête\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="IInputStream.h">
+      <Filter>Fichiers d%27en-tête\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputBinStream.h">
+      <Filter>Fichiers d%27en-tête\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="MShared_ptr.h">
+      <Filter>Fichiers d%27en-tête\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Record.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordAssertions.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
+    <ClInclude Include="MMemory.h">
+      <Filter>Fichiers d%27en-tête\Memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -59,11 +104,23 @@
     <ClCompile Include="pch.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="InputBinStream.cpp">
+    <ClCompile Include="IRecordObject.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="RTTIDefinition.cpp">
+      <Filter>Fichiers sources\RTTI</Filter>
+    </ClCompile>
+    <ClCompile Include="RTTIException.cpp">
+      <Filter>Fichiers sources\RTTI</Filter>
+    </ClCompile>
+    <ClCompile Include="InputBinStream.cpp">
+      <Filter>Fichiers sources\Stream</Filter>
+    </ClCompile>
     <ClCompile Include="OutputBinStream.cpp">
-      <Filter>Fichiers sources</Filter>
+      <Filter>Fichiers sources\Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordAssertions.cpp">
+      <Filter>Fichiers sources\Undo/Redo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

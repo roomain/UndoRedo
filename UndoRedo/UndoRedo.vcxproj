@@ -141,22 +141,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Exception.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IInputStream.h" />
     <ClInclude Include="IOutputStream.h" />
     <ClInclude Include="IRecordObject.h" />
     <ClInclude Include="BinaryBuffer.h" />
     <ClInclude Include="InputBinStream.h" />
+    <ClInclude Include="MMemory.h" />
     <ClInclude Include="OutputBinStream.h" />
     <ClInclude Include="MShared_ptr.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ProtocolExtension.h" />
     <ClInclude Include="Record.h" />
-    <ClInclude Include="RecordAssertion.h" />
+    <ClInclude Include="RecordAssertions.h" />
+    <ClInclude Include="RTTIDefinition.h" />
+    <ClInclude Include="RTTIDefinition_macros.h" />
+    <ClInclude Include="RTTIException.h" />
+    <ClInclude Include="RTTIException_macro.h" />
+    <ClInclude Include="TRTTIDefinition.h" />
     <ClInclude Include="UndoRedo_globals.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InputBinStream.cpp" />
+    <ClCompile Include="IRecordObject.cpp" />
     <ClCompile Include="OutputBinStream.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -164,6 +173,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RecordAssertions.cpp" />
+    <ClCompile Include="RTTIDefinition.cpp" />
+    <ClCompile Include="RTTIException.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

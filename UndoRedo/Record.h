@@ -1,8 +1,11 @@
 #pragma once
+#include "IInputStream.h"
+#include "UndoRedo_globals.h"
+
 
 /*@brief record interface used for undo/redo*/
-class IRecord
+class UNDO_REDO_EXPORT IRecord
 {
 public:
-	virtual void process(/**/) = 0;
+	virtual void process(IInputStream& a_stream) = 0;
 };
