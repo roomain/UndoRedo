@@ -10,12 +10,12 @@
 #include <string>
 #include <ranges>
 #include "MShared_ptr.h"
+#include "Defines.h"
 #include "UndoRedo_globals.h"
 
 class IRecordObject;
 class ProtocolExtension;
 using ProtocolExtensionPtr = std::shared_ptr<ProtocolExtension>;
-using ObjectUID = unsigned long long;
 
 #pragma warning(push)
 #pragma warning(disable : 4275)

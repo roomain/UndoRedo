@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IInputStream.h" />
@@ -153,8 +154,10 @@
     <ClInclude Include="MShared_ptr.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProtocolExtension.h" />
+    <ClInclude Include="RealocMemory.h" />
     <ClInclude Include="Record.h" />
     <ClInclude Include="RecordAssertions.h" />
+    <ClInclude Include="RecordSession.h" />
     <ClInclude Include="RTTIDefinition.h" />
     <ClInclude Include="RTTIDefinition_macros.h" />
     <ClInclude Include="RTTIException.h" />

@@ -96,6 +96,15 @@
     <ClInclude Include="MMemory.h">
       <Filter>Fichiers d%27en-tête\Memory</Filter>
     </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="RealocMemory.h">
+      <Filter>Fichiers d%27en-tête\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordSession.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
