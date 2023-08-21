@@ -5,13 +5,14 @@
 #include "RTTIDefinition.h"
 
 using RealocMap = std::unordered_map<ObjectUID, MShared_ptr<IRecordObject>>;
+using RealocWMap = std::unordered_map<ObjectUID, std::weak_ptr<IRecordObject>>;
 
 /*@brief realocation memory*/
 class RealocMemory
 {
 private:
-	RealocMap m_undoRedoRealoc;	/*!< realocated pointer for all sessions*/
-	RealocMap m_sessionRealoc;	/*!< realocated pointer for session*/
+	RealocWMap m_undoRedoRealoc;	/*!< realocated pointer for all sessions*/
+	RealocMap m_sessionRealoc;		/*!< realocated pointer for session*/
 	
 public:
 	RealocMemory() = default;

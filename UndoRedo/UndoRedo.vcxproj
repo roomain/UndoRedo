@@ -162,7 +162,9 @@
     <ClInclude Include="RTTIDefinition_macros.h" />
     <ClInclude Include="RTTIException.h" />
     <ClInclude Include="RTTIException_macro.h" />
+    <ClInclude Include="TRecordContainer.h" />
     <ClInclude Include="TRTTIDefinition.h" />
+    <ClInclude Include="UndoRedo.h" />
     <ClInclude Include="UndoRedo_globals.h" />
   </ItemGroup>
   <ItemGroup>
@@ -176,9 +178,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RealocMemory.cpp" />
+    <ClCompile Include="Record.cpp" />
     <ClCompile Include="RecordAssertions.cpp" />
+    <ClCompile Include="RecordSession.cpp" />
     <ClCompile Include="RTTIDefinition.cpp" />
     <ClCompile Include="RTTIException.cpp" />
+    <ClCompile Include="UndoRedo.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

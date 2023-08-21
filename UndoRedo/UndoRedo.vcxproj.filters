@@ -34,6 +34,9 @@
     <Filter Include="Fichiers d%27en-tête\Memory">
       <UniqueIdentifier>{ccaea05b-0d23-4134-b245-2fcb6b41e216}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\Memory">
+      <UniqueIdentifier>{ac07f31f-a4b6-447d-94e0-4a322d4cfa6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -105,6 +108,12 @@
     <ClInclude Include="RecordSession.h">
       <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
     </ClInclude>
+    <ClInclude Include="TRecordContainer.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
+    <ClInclude Include="UndoRedo.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -129,6 +138,18 @@
       <Filter>Fichiers sources\Stream</Filter>
     </ClCompile>
     <ClCompile Include="RecordAssertions.cpp">
+      <Filter>Fichiers sources\Undo/Redo</Filter>
+    </ClCompile>
+    <ClCompile Include="RealocMemory.cpp">
+      <Filter>Fichiers sources\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="UndoRedo.cpp">
+      <Filter>Fichiers sources\Undo/Redo</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordSession.cpp">
+      <Filter>Fichiers sources\Undo/Redo</Filter>
+    </ClCompile>
+    <ClCompile Include="Record.cpp">
       <Filter>Fichiers sources\Undo/Redo</Filter>
     </ClCompile>
   </ItemGroup>
