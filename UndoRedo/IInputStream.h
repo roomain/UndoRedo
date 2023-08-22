@@ -15,6 +15,7 @@ public:
 	virtual IInputStream& setPos(const size_t& a_offset) = 0;
 	virtual IInputStream& shift(const size_t& a_offset) = 0;
 	virtual void atStart() = 0;
+	virtual size_t offset()const = 0;
 	//-----------------------------------------------------------------
 	virtual IInputStream& operator >> (unsigned long long&) = 0;
 	virtual IInputStream& operator >> (long long&) = 0;

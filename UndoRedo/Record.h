@@ -2,10 +2,13 @@
 #include <memory>
 #include "MShared_ptr.h"
 #include "Defines.h"
+#include "RTTIDefinition.h"
 
 class RealocMemory;
 class IInputStream;
 class IOutputStream;
+class IRecordObject;
+class RTTIDefinition;
 
 /*@brief record interface used for undo/redo*/
 class IRecord
@@ -25,6 +28,7 @@ private:
 	ObjectUID m_objectUID;
 	std::weak_ptr<IRecordObject> m_object;
 	size_t m_recordDataOffset;
+	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
 	RecordModification(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
@@ -39,6 +43,7 @@ class RecordDeletion : public IRecord
 private:
 	ObjectUID m_objectUID;
 	size_t m_recordDataOffset;
+	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
 	RecordDeletion(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);

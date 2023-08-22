@@ -11,6 +11,7 @@
 class IOutputStream
 {
 public:
+	virtual size_t offset()const = 0;
 	virtual IOutputStream& operator << (const unsigned long long&) = 0;
 	virtual IOutputStream& operator << (const long long&) = 0;
 	virtual IOutputStream& operator << (const bool) = 0;

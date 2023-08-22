@@ -25,7 +25,7 @@ public:
 	OutputBinStream() = default;
 	explicit OutputBinStream(const BinaryBufferPtr& a_buffer);
 	virtual ~OutputBinStream() = default;
-	constexpr size_t offset()const { return m_outputBuffer ? m_outputBuffer->size() : 0; }
+	size_t offset()const final{ return m_outputBuffer ? m_outputBuffer->size() : 0; }
 	void setBuffer(const BinaryBufferPtr& a_buffer);
 	[[nodiscard]] bool hasBuffer()const noexcept { return m_outputBuffer.get() != nullptr; }
 	IOutputStream& operator << (const unsigned long long& a_value)final;

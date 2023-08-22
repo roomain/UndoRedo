@@ -9,6 +9,18 @@
 #include "OutputBinStream.h"
 
 using SessionTimePoint = std::chrono::time_point<std::chrono::system_clock>;
+using ListOfRecord = std::list<std::unique_ptr<IRecord>>;
+using RecordIterator = std::list<std::unique_ptr<IRecord>>::iterator;
+
+class RecordList
+{
+private:
+	ListOfRecord m_lRecord;
+
+public:
+	RecordList();
+};
+
 class RecordSession
 {
 private:

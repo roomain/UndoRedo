@@ -24,7 +24,7 @@ public:
 	InputBinStream() = default;
 	explicit InputBinStream(const BinaryBufferPtr& a_buffer);
 	virtual ~InputBinStream() = default;
-	constexpr size_t offset()const { return m_inputBuffer ? m_inputBuffer->size() : 0; }
+	size_t offset()const final{ return m_inputBuffer ? m_inputBuffer->size() : 0; }
 	IInputStream& setPos(const size_t& offset) final;
 	IInputStream& shift(const size_t& offset) final;
 	void atStart()final;
