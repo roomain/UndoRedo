@@ -8,10 +8,5 @@
 #define PCH_H
 
 // ajouter les en-têtes à précompiler ici
-#include "framework.h"
-#include "RTTIException.h"
-#include "RTTIDefinition.h"
-#include "ProtocolExtension.h"
-#include "UndoRedoException.h"
-#include "ContainerCell.h"
+
 #endif //PCH_H

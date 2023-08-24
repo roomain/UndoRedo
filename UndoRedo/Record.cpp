@@ -18,7 +18,7 @@ RecordModification::RecordModification(std::weak_ptr<IRecordObject>& a_pObject, 
 	}
 	else
 	{
-		throw; // TODO
+		UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
 	}
 }
 
@@ -59,7 +59,7 @@ RecordDeletion::RecordDeletion(std::weak_ptr<IRecordObject>& a_pObject, IOutputS
 	}
 	else
 	{
-		throw; // TODO
+		UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
 	}
 }
 
@@ -77,8 +77,3 @@ void RecordDeletion::process(IInputStream& a_stream, RealocMemory& a_memory)
 	}
 }
 
-std::unique_ptr<IRecord> RecordDeletion::reverse(IOutputStream& a_stream)
-{
-	//
-	return nullptr;
-}

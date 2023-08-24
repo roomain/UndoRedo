@@ -16,9 +16,9 @@ void RecordSession::undo(RealocMemory& a_memory)
 	bool bGenRedoRecord = m_redoRecord.empty();
 	for (auto&& pRecord : m_undoRecord)
 	{
-		if (bGenRedoRecord)
+		if (bGenRedoRecord && pRecord->hasReverse())
 		{
-			//
+			m_redoRecord.push_back(pRecord->reverse(m_saveStream));
 		}
 		pRecord->process(m_loadStream, a_memory);
 	}

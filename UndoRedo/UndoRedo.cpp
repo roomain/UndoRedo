@@ -40,7 +40,7 @@ RecordSession& UndoRedo::currentSession()
 {
 	if (m_curUndoSession.has_value())
 		return *(m_curUndoSession.value());
-	throw;
+	UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_No_session)
 }
 
 void UndoRedo::undo()

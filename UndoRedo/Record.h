@@ -18,8 +18,12 @@ private:
 public:
 	void setIgnore(const bool a_ignore) { m_ignore = a_ignore; }
 	bool ignored()const noexcept { return m_ignore; }
+	/*@brief indicate if record can have a reverse*/
+	virtual bool hasReverse()const noexcept { return true; }
+	/*@brief process record*/
 	virtual void process(IInputStream& a_stream, RealocMemory& a_memory) = 0; 
-	virtual std::unique_ptr<IRecord> reverse(IOutputStream& a_stream) = 0;
+	/*@brief gen reverse record*/
+	virtual std::unique_ptr<IRecord> reverse(IOutputStream& a_stream) { return  nullptr; }
 };
 
 class RecordModification : public IRecord
@@ -48,6 +52,6 @@ private:
 public:
 	RecordDeletion(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
 	virtual ~RecordDeletion() = default;
+	bool hasReverse()const noexcept final{ return false; }
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final;
-	std::unique_ptr<IRecord> reverse(IOutputStream& a_stream) final;
 };

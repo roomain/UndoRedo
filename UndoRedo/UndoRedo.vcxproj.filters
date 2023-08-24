@@ -37,6 +37,18 @@
     <Filter Include="Fichiers sources\Memory">
       <UniqueIdentifier>{ac07f31f-a4b6-447d-94e0-4a322d4cfa6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Exception">
+      <UniqueIdentifier>{f09ddc50-ce30-4c5a-b5e5-9d1d376c64ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Exception">
+      <UniqueIdentifier>{627d7b42-4382-45a3-80b1-b507f97d7b1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Container">
+      <UniqueIdentifier>{cf5a6113-a92d-40b5-868d-aadbf17249c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Container">
+      <UniqueIdentifier>{8d65baca-8a57-463b-b33e-abe578b84445}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -55,9 +67,6 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="ProtocolExtension.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Exception.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="RTTIDefinition.h">
@@ -114,6 +123,18 @@
     <ClInclude Include="UndoRedo.h">
       <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
     </ClInclude>
+    <ClInclude Include="UndoRedoException.h">
+      <Filter>Fichiers d%27en-tête\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="UndoRedoExceptionDefines.h">
+      <Filter>Fichiers d%27en-tête\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="Exception.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="ContainerCell.h">
+      <Filter>Fichiers d%27en-tête\Container</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -151,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="Record.cpp">
       <Filter>Fichiers sources\Undo/Redo</Filter>
+    </ClCompile>
+    <ClCompile Include="UndoRedoException.cpp">
+      <Filter>Fichiers sources\Exception</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
