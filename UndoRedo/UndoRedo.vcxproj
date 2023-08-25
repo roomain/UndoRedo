@@ -144,6 +144,7 @@
     <ClInclude Include="ContainerCell.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="TIContainer.h" />
     <ClInclude Include="UndoRedoExceptionDefines.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IInputStream.h" />
