@@ -16,7 +16,7 @@ public:
         if constexpr (std::is_base_of_v<IRecordObject, T>)
         {
             if (std::shared_ptr<T>::use_count() == 1)
-                assertDeletion(std::shared_ptr<T>::get());
+                assertDeletion(const_cast<IRecordObject* const>(std::shared_ptr<T>::get()));
         }
     }
 };

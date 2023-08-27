@@ -3,7 +3,10 @@
 #include "MMemory.h"
 
 template<typename Type>
-using ChangeAssertion = std::function<void(const MShared_ptr<Type>&)>;
+class ContainerCell;
+
+template<typename Type>
+using ChangeAssertion = std::function<void(const ContainerCell<Type>*, const MShared_ptr<Type>& , const MShared_ptr<Type>&)>;
 
 template<typename Type>
 class ContainerCell : public MShared_ptr<Type>
@@ -36,7 +39,7 @@ public:
 		if (MShared_ptr<Type>::operator != (a_other))
 		{
 			if (m_changeAssert)
-				m_changeAssert(*this);
+				m_changeAssert(this, *this, a_other);
 			MShared_ptr<Type>::operator = (a_other);
 		}
 		return *this;
@@ -47,7 +50,7 @@ public:
 		if (MShared_ptr<Type>::operator != (a_other))
 		{
 			if (m_changeAssert)
-				m_changeAssert(*this);
+				m_changeAssert(this, *this, a_other);
 			MShared_ptr<Type>::operator = (a_other);
 		}
 		return *this;
@@ -58,7 +61,7 @@ public:
 		if (MShared_ptr<Type>::operator != (a_other))
 		{
 			if (m_changeAssert)
-				m_changeAssert(*this);
+				m_changeAssert(*this, a_other);
 			MShared_ptr<Type>::operator = (a_other);
 		}
 		return *this;
@@ -69,7 +72,7 @@ public:
 		if (MShared_ptr<Type>::operator != (a_other))
 		{
 			if (m_changeAssert)
-				m_changeAssert(*this);
+				m_changeAssert(this, *this, a_other);
 			MShared_ptr<Type>::operator = (a_other);
 		}
 		return *this;

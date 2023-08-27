@@ -4,11 +4,15 @@
 #include <string_view>
 #include "RecordSession.h"
 #include "RealocMemory.h"
+#include "UndoRedo_globals.h"
+
+#pragma warning(push)
+#pragma warning(disable : 4251)
 
 using SessionList = std::list<RecordSession>;
 using SessionIter = std::optional<SessionList::iterator>;
 
-class UndoRedo
+class UNDO_REDO_EXPORT UndoRedo
 {
 private:
 	UndoRedo() = default;
@@ -29,3 +33,4 @@ public:
 	void undo();
 	void redo();
 };
+#pragma warning(pop)

@@ -14,4 +14,5 @@
 #include "ProtocolExtension.h"
 #include "UndoRedoException.h"
 #include "ContainerCell.h"
+#include "MVector.h"
 #endif //PCH_H

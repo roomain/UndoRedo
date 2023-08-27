@@ -31,3 +31,8 @@ void RecordSession::redo(RealocMemory& a_memory)
 		pRecord->process(m_loadStream, a_memory);
 	}
 }
+
+void RecordSession::addRecord(std::shared_ptr<IRecord>&& a_record)
+{
+	m_undoRecord.emplace_back(std::move(a_record));
+}

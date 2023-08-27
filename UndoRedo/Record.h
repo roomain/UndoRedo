@@ -4,6 +4,7 @@
 #include "Defines.h"
 #include "RTTIDefinition.h"
 
+
 class RealocMemory;
 class IInputStream;
 class IOutputStream;
@@ -23,8 +24,9 @@ public:
 	/*@brief process record*/
 	virtual void process(IInputStream& a_stream, RealocMemory& a_memory) = 0; 
 	/*@brief gen reverse record*/
-	virtual std::unique_ptr<IRecord> reverse(IOutputStream& a_stream) { return  nullptr; }
+	virtual std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) { return  nullptr; }
 };
+
 
 class RecordModification : public IRecord
 {
@@ -35,10 +37,10 @@ private:
 	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
-	RecordModification(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
+	RecordModification(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
 	virtual ~RecordModification() = default;
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final;
-	std::unique_ptr<IRecord> reverse(IOutputStream& a_stream) final;
+	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final;
 };
 
 
@@ -50,7 +52,7 @@ private:
 	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
-	RecordDeletion(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
+	RecordDeletion(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
 	virtual ~RecordDeletion() = default;
 	bool hasReverse()const noexcept final{ return false; }
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final;

@@ -3,6 +3,11 @@
 #include <string>
 #include <string_view>
 #include <source_location>
+#include "UndoRedo_globals.h"
+
+#pragma warning(push)
+#pragma warning(disable : 4251)
+
 
 class UndoRedoException : public std::exception
 {
@@ -32,3 +37,6 @@ public:
 
 #define UNDO_REDO_TROW_EXTRA(enumerate, extra) \
 	throw UndoRedoException(std::source_location::current(), enumerate, #extra);
+
+
+#pragma warning(pop)

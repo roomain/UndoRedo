@@ -138,6 +138,9 @@
     <ClInclude Include="TIContainer.h">
       <Filter>Fichiers d%27en-tête\Container</Filter>
     </ClInclude>
+    <ClInclude Include="MVector.h">
+      <Filter>Fichiers d%27en-tête\Container</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

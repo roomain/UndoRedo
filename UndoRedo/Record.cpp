@@ -5,7 +5,7 @@
 #include "IRecordObject.h"
 #include "RealocMemory.h"
 
-RecordModification::RecordModification(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream) : 
+RecordModification::RecordModification(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream) : 
 	m_object{ a_pObject }
 {
 	auto pObj = a_pObject.lock();
@@ -42,17 +42,18 @@ void RecordModification::process(IInputStream& a_stream, RealocMemory& a_memory)
 	}
 }
 
-std::unique_ptr<IRecord> RecordModification::reverse(IOutputStream& a_stream)
+std::shared_ptr<IRecord> RecordModification::reverse(IOutputStream& a_stream)
 {
-	return std::make_unique<RecordModification>(m_object, a_stream);
+	return std::make_shared<RecordModification>(m_object, a_stream);
 }
 
 //-----------------------------------------------------------------------------------------
-RecordDeletion::RecordDeletion(std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream)
+RecordDeletion::RecordDeletion(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream)
 {
 	auto pObj = a_pObject.lock();
 	if (pObj)
 	{
+		m_pObjectDef = pObj->definition();
 		m_objectUID = pObj->uid();
 		m_recordDataOffset = a_stream.offset();
 		pObj->save(a_stream);

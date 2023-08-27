@@ -39,5 +39,6 @@ public:
 	virtual void save(IOutputStream& a_stream) = 0;
 };
 
+using IRecordObjectPtr = MShared_ptr<IRecordObject>;
 
 #pragma warning(pop)
