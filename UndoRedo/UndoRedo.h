@@ -30,7 +30,9 @@ public:
 	[[nodiscard]] bool hasUndo()const;
 	[[nodiscard]] bool hasRedo()const;
 	RecordSession& currentSession();
+	bool sessionStarted()const;
 	void undo();
 	void redo();
+	void clear();
 };
 #pragma warning(pop)

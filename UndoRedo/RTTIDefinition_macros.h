@@ -133,8 +133,8 @@ static MShared_ptr<classname> createObject() \
 
 /*@brief declare RTTI for a simple class*/
 #define DECLARE_RTTI(version, classname) \
+BASE_RTTI_STATIC(version, classname) \
 STATIC_CTOR(classname) \
-BASE_RTTI_STATIC(version, classname)\
 BASE_DEFINITION_MACRO(version, classname)\
 public: \
 	static void initDef()\
@@ -145,8 +145,8 @@ public: \
 
 /*@brief declare RTTI for a derived class: DECLARE_RTTI_DERIVED(version, classname, parents classes) */
 #define DECLARE_RTTI_DERIVED(version, classname, ...) \
+BASE_RTTI_STATIC(version, classname) \
 STATIC_CTOR(classname) \
-BASE_RTTI_STATIC(version, classname)\
 BASE_DEFINITION_MACRO(version, classname)\
 public: \
 	static void initDef()\

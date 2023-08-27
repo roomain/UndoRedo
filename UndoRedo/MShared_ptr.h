@@ -11,12 +11,14 @@ public:
     MShared_ptr(std::shared_ptr<T>&& a_other) : std::shared_ptr<T>(a_other) {};
     MShared_ptr(const std::weak_ptr<T>& a_other) : std::shared_ptr<T>(a_other) {};
     MShared_ptr(std::weak_ptr<T>&& a_other) : std::shared_ptr<T>(a_other) {};
+    template<typename U>
+    MShared_ptr(std::shared_ptr<T>&& a_other, T* a_ptr) noexcept : std::shared_ptr<T>(a_other, a_ptr) {};
     ~MShared_ptr()
     {
         if constexpr (std::is_base_of_v<IRecordObject, T>)
         {
             if (std::shared_ptr<T>::use_count() == 1)
-                assertDeletion(const_cast<IRecordObject* const>(std::shared_ptr<T>::get()));
+                assertDeletion(const_cast<IRecordObject* const>(static_cast<const IRecordObject*>(std::shared_ptr<T>::get())));
         }
     }
 };

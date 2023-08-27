@@ -26,6 +26,11 @@ public:
 		m_changeAssert = a_other.m_changeAssert;
 	}
 
+	explicit ContainerCell(ContainerCell<Type>& a_other)noexcept : MShared_ptr<Type>(a_other)
+	{
+		m_changeAssert = a_other.m_changeAssert;
+	}
+
 	explicit ContainerCell(const ChangeAssertion<Type>& a_assert) : m_changeAssert{ a_assert } {}
 
 	ContainerCell(const ChangeAssertion<Type>& a_assert, const MShared_ptr<Type>& a_ptr) :
@@ -47,7 +52,7 @@ public:
 
 	ContainerCell<Type>& operator = (MShared_ptr<Type>&& a_other)
 	{
-		if (MShared_ptr<Type>::operator != (a_other))
+		if (this->get() != a_other.get())
 		{
 			if (m_changeAssert)
 				m_changeAssert(this, *this, a_other);
@@ -58,7 +63,7 @@ public:
 
 	ContainerCell<Type>& operator = (const ContainerCell<Type>& a_other)
 	{
-		if (MShared_ptr<Type>::operator != (a_other))
+		if (this->get() != a_other.get())
 		{
 			if (m_changeAssert)
 				m_changeAssert(*this, a_other);
@@ -69,7 +74,7 @@ public:
 
 	ContainerCell<Type>& operator = (ContainerCell<Type>&& a_other)
 	{
-		if (MShared_ptr<Type>::operator != (a_other))
+		if (this->get() != a_other.get())
 		{
 			if (m_changeAssert)
 				m_changeAssert(this, *this, a_other);

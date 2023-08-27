@@ -126,6 +126,7 @@ IInputStream& InputBinStream::operator >> (std::string& a_value)
 		m_offset = m_inputBuffer->read(stringLen, m_offset);
 		if (stringLen > 0)
 		{
+			a_value.clear();
 			m_offset = m_inputBuffer->read<char>(stringLen, std::back_inserter(a_value), m_offset);
 		}
 	}
@@ -142,6 +143,7 @@ IInputStream& InputBinStream::operator >> (std::wstring& a_value)
 		m_offset = m_inputBuffer->read(stringLen, m_offset);
 		if (stringLen > 0)
 		{
+			a_value.clear();
 			m_offset = m_inputBuffer->read<wchar_t>(stringLen, std::back_inserter(a_value), m_offset);
 		}
 	}

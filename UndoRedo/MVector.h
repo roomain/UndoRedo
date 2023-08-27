@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <vector>
+#include "MMemory.h"
 #include "TIContainer.h"
 #include "ContainerCell.h"
 #include "RTTIDefinition_macros.h"
@@ -12,27 +13,20 @@
 template<typename Type> requires std::is_base_of_v<IRecordObject, Type>
 class MVector : public TIContainer<size_t>, private std::vector<ContainerCell<Type>>
 {
-	DECLARE_RTTI(MVector<Type>, IRecordObject)
+    DECLARE_RTTI_DERIVED(1, MVector<Type>, IRecordObject)
 private:
 	using VectorBase = std::vector<ContainerCell<Type>>;
 	ChangeAssertion<Type> m_itemCallback;
 protected:
-    unsigned int itemRefCount(const size_t& a_index)const final
-    {
-        if (VectorBase::size() > a_index)
-            return VectorBase::operator[](a_index).refCount();
-        return -1;
-    }
-
     void record_insert(const size_t& a_key, const IRecordObjectPtr& a_object)final
     {
         if (VectorBase::size() > a_key)
         {
-            VectorBase::insert(begin() + a_key, ContainerCell<Type>(m_itemCallback, std::static_pointer_cast<Type>(a_object)));
+            VectorBase::insert(begin() + a_key, ContainerCell<Type>(m_itemCallback, MStatic_pointer_cast<Type>(a_object)));
         }
         else
         {
-            VectorBase::push_back(ContainerCell<Type>(m_itemCallback, std::static_pointer_cast<Type>(a_object)));
+            VectorBase::push_back(ContainerCell<Type>(m_itemCallback, MStatic_pointer_cast<Type>(a_object)));
         }
     }
 
@@ -44,35 +38,44 @@ protected:
 
     void assert_ItemAdd(const MShared_ptr<Type>& a_pItem, const size_t a_index)
     {
-        RecordSession& curSession = UndoRedo::instance().currentSession();
-        curSession.addRecord(weak_from_this(), std::make_shared<TRecordInsert<Type>>(a_index, a_pItem));
+        if (UndoRedo::instance().sessionStarted())
+        {
+            RecordSession& curSession = UndoRedo::instance().currentSession();
+            std::weak_ptr<TIContainer<size_t>> ptr = std::dynamic_pointer_cast<TIContainer<size_t>>(shared_from_this());
+            curSession.addRecord(std::make_shared<TRecordInsert<size_t>>(ptr, a_index, a_pItem));
+        }
     }
 
     void assert_ItemRemoved(const MShared_ptr<Type>& a_pItem, const size_t a_index)
     {
-        RecordSession& curSession = UndoRedo::instance().currentSession();
-        curSession.addRecord(weak_from_this(), std::make_shared<TRecordRemoved<Type>>(a_index, a_pItem));
+        if (UndoRedo::instance().sessionStarted())
+        {
+            RecordSession& curSession = UndoRedo::instance().currentSession();
+            std::weak_ptr<TIContainer<size_t>> ptr = std::dynamic_pointer_cast<TIContainer<size_t>>(shared_from_this());
+            curSession.addRecord(std::make_shared<TRecordRemoved<size_t>>(ptr, a_index, a_pItem));
+        }
     }
 
     void assert_ItemChanged(const ContainerCell<Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
     {
-        if (m_bActiveCallback)
+        if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
         {
             const size_t index = a_pItem - VectorBase::data();
             RecordSession& curSession = UndoRedo::instance().currentSession();
-            curSession.addRecord(weak_from_this(), std::make_shared<TRecordChanged<Type>>(index, a_pBefore, a_pAfter));
+            std::weak_ptr<TIContainer<size_t>> ptr = std::dynamic_pointer_cast<TIContainer<size_t>>(shared_from_this());
+            curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(ptr, index, a_pAfter, a_pBefore));
         }
     }
 
-    bool m_bActiveCallback = true; /*!< active the assertItem callback*/
+    bool m_bActiveCallback = true; /*!< active the assert_ItemChanged callback*/
 
 public:
     MVector()
     {
-        m_itemCallback = std::bind_front(&MVector<Type>::assertItem, this);
+        m_itemCallback = std::bind_front(&MVector<Type>::assert_ItemChanged, this);
     }
     explicit MVector(const size_t& size) : std::vector<ContainerCell<Type>>(size) {
-        m_itemCallback = std::bind_front(&MVector<Type>::assertItem, this);
+        m_itemCallback = std::bind_front(&MVector<Type>::assert_ItemChanged, this);
     }
 
     size_t size() const noexcept { return VectorBase::size(); }

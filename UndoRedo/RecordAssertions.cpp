@@ -8,12 +8,18 @@
 
 void assertModification(IRecordObject* const a_object)
 {
-	RecordSession& curSession = UndoRedo::instance().currentSession();
-	curSession.addRecord(std::make_shared<RecordModification>(a_object->weak_from_this(), curSession.saveStream()));
+	if (UndoRedo::instance().sessionStarted())
+	{
+		RecordSession& curSession = UndoRedo::instance().currentSession();
+		curSession.addRecord(std::make_shared<RecordModification>(a_object->weak_from_this(), curSession.saveStream()));
+	}
 }
 
 void assertDeletion(IRecordObject* const a_object)
 {
-	RecordSession& curSession = UndoRedo::instance().currentSession();
-	curSession.addRecord(std::make_shared<RecordDeletion>(a_object->weak_from_this(), curSession.saveStream()));
+	if (UndoRedo::instance().sessionStarted())
+	{
+		RecordSession& curSession = UndoRedo::instance().currentSession();
+		curSession.addRecord(std::make_shared<RecordDeletion>(a_object->weak_from_this(), curSession.saveStream()));
+	}
 }

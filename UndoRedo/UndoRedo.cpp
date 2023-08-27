@@ -36,6 +36,11 @@ bool UndoRedo::hasRedo()const
 	return m_curRedoSession.has_value();
 }
 
+bool UndoRedo::sessionStarted()const
+{
+	return m_curUndoSession.has_value();
+}
+
 RecordSession& UndoRedo::currentSession()
 {
 	if (m_curUndoSession.has_value())
@@ -79,4 +84,11 @@ void UndoRedo::redo()
 			m_curRedoSession.value()++;
 		}
 	}
+}
+
+void UndoRedo::clear()
+{
+	m_curUndoSession.reset();
+	m_curRedoSession.reset();
+	m_lRecordSessions.clear();
 }

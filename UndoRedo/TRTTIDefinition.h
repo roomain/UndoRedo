@@ -14,6 +14,8 @@ public:
 		const std::vector<std::shared_ptr<RTTIDefinition>>& a_vParents) :
 		RTTIDefinition(a_name, a_version, a_vParents) {}
 
+	virtual ~TRTTIDefinition() = default;
+
 	/*@brief size of described class*/
 	[[nodiscard]] virtual size_t classSize()const noexcept override { return sizeof(DefinedClass); }
 
@@ -23,10 +25,10 @@ public:
 		if constexpr(std::is_base_of_v<IRecordObject, DefinedClass>  && !std::is_abstract_v<DefinedClass>)
 		{
 			IRecordObject::enableUIDGenerator(false);
-			MShared_ptr<IRecordObject> ptrObj = make_MShared<DefinedClass>();
+			MShared_ptr<DefinedClass> ptrObj = make_MShared<DefinedClass>();
 			ptrObj->setUID(a_objectUID);
 			IRecordObject::enableUIDGenerator(true);
-			RTTIDefinition::registerToDocument(ptrObj);
+			//RTTIDefinition::registerToDocument(ptrObj);
 			return ptrObj;
 		}
 		return nullptr;
@@ -38,7 +40,7 @@ public:
 		if constexpr (std::is_base_of_v<IRecordObject, DefinedClass> && !std::is_abstract_v<DefinedClass>)
 		{
 			auto ptrObj = make_MShared<DefinedClass>();
-			RTTIDefinition::registerToDocument(ptrObj);
+			//RTTIDefinition::registerToDocument(ptrObj);
 			return ptrObj;
 		}
 		return nullptr;

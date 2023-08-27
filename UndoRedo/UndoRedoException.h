@@ -7,9 +7,10 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
 
-class UndoRedoException : public std::exception
+class UNDO_REDO_EXPORT UndoRedoException : public std::exception
 {
 public:
 	enum class ExceptionType

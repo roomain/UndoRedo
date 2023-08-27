@@ -25,7 +25,7 @@ public:
 	RecordList();
 };
 
-class RecordSession
+class UNDO_REDO_EXPORT RecordSession
 {
 private:
 	SessionTimePoint m_timePoint;

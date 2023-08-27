@@ -15,6 +15,7 @@
 class UNDO_REDO_EXPORT IRecordObject : public MShared_from_this<IRecordObject>
 {
 	DECLARE_RTTI(1, IRecordObject)
+
 private:
 	ObjectUID m_objectUid;	/*!< object unique identifier*/
 
@@ -35,8 +36,8 @@ public:
 	IRecordObject(IRecordObject&& a_other)noexcept;
 	IRecordObject& operator = (IRecordObject&&) = delete;
 	[[nodiscard]] constexpr ObjectUID uid()const noexcept { return m_objectUid; }
-	virtual void load(IInputStream& a_stream) = 0;
-	virtual void save(IOutputStream& a_stream) = 0;
+	virtual unsigned short load(IInputStream& a_stream) = 0;
+	virtual bool save(IOutputStream& a_stream)const = 0;
 };
 
 using IRecordObjectPtr = MShared_ptr<IRecordObject>;
