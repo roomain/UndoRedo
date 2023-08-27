@@ -83,8 +83,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final
 	{
-		//
-		return nullptr;
+		return std::make_shared<TRecordRemoved>(this->getContainer(), m_objectKey, m_pObject);
 	}
 
 };
@@ -139,8 +138,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final
 	{
-		//
-		return nullptr;
+		return std::make_shared<TRecordInsert>(this->getContainer(), m_objectKey, m_pRemovedObject);
 	}
 };
 
