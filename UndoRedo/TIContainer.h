@@ -20,6 +20,7 @@ class TIContainer : public IRecordObject
 
 protected:
 	//virtual MShared_ptr<Contained> at(const Key& a_key) = 0;
+	virtual void record_replace(const size_t& a_key, const IRecordObjectPtr& a_object) = 0;
 	virtual void record_insert(const Key& a_key, const IRecordObjectPtr& a_value) = 0;
 	virtual void record_eraseAt(const Key& a_key) = 0;
 };

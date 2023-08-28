@@ -42,7 +42,7 @@ void RecordModification::process(IInputStream& a_stream, RealocMemory& a_memory)
 	}
 }
 
-std::shared_ptr<IRecord> RecordModification::reverse(IOutputStream& a_stream)
+std::shared_ptr<IRecord> RecordModification::reverse(RealocMemory& a_memory, IOutputStream& a_stream)
 {
 	return std::make_shared<RecordModification>(m_object, a_stream);
 }

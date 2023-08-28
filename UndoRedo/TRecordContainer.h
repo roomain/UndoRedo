@@ -34,7 +34,7 @@ public:
 		auto pObj = m_pContainerObject.lock();
 		if (!pObj)
 		{
-			pObj = a_memory.realoc(m_containerObjectUID, m_pObjectDef);
+			pObj = MStatic_pointer_cast<TIContainer<Key>>(a_memory.realoc(m_containerObjectUID, m_pObjectDef));
 			m_pContainerObject = pObj;
 		}
 
@@ -81,9 +81,9 @@ public:
 		}
 	}
 
-	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordRemoved>(this->getContainer(), m_objectKey, m_pObject);
+		return std::make_shared<TRecordRemoved>(this->getContainer(a_memory), m_objectKey, m_pObject);
 	}
 
 };
@@ -136,9 +136,9 @@ public:
 		}
 	}
 
-	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordInsert>(this->getContainer(), m_objectKey, m_pRemovedObject);
+		return std::make_shared<TRecordInsert>(this->getContainer(a_memory), m_objectKey, m_pRemovedObject);
 	}
 };
 
@@ -180,13 +180,32 @@ public:
 	virtual ~TRecordChanged() = default;
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{
-		// TODO
+		auto pContainer = this->getContainer(a_memory);
+		if (pContainer)
+		{
+			auto pObj = m_pOldObject.lock();
+			if (!pObj)
+				pObj = a_memory.realoc(m_oldObjectUID, std::weak_ptr<RTTIDefinition>());
+
+			if (pObj)
+			{
+				pContainer->record_replace(m_objectKey, pObj);
+				m_pOldObject = pObj;
+			}
+			else
+			{
+				// LOG
+			}
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
 	}
 
 
-	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		//
-		return nullptr;
+		return std::make_shared<TRecordChanged<Key>>(this->getContainer(a_memory), m_objectKey, m_pOldObject, m_pNewObject);
 	}
 };

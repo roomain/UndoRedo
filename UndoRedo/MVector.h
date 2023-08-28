@@ -18,6 +18,18 @@ private:
 	using VectorBase = std::vector<ContainerCell<Type>>;
 	ChangeAssertion<Type> m_itemCallback;
 protected:
+    void record_replace(const size_t& a_key, const IRecordObjectPtr& a_object)final
+    {
+        if (VectorBase::size() > a_key)
+        {
+            VectorBase::operator[](a_key) = MStatic_pointer_cast<Type>(a_object);
+        }
+        else
+        {
+            VectorBase::push_back(ContainerCell<Type>(m_itemCallback, MStatic_pointer_cast<Type>(a_object)));
+        }
+    }
+
     void record_insert(const size_t& a_key, const IRecordObjectPtr& a_object)final
     {
         if (VectorBase::size() > a_key)

@@ -24,7 +24,7 @@ public:
 	/*@brief process record*/
 	virtual void process(IInputStream& a_stream, RealocMemory& a_memory) = 0; 
 	/*@brief gen reverse record*/
-	virtual std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) { return  nullptr; }
+	virtual std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) { return  nullptr; }
 };
 
 
@@ -40,7 +40,7 @@ public:
 	RecordModification(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
 	virtual ~RecordModification() = default;
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final;
-	std::shared_ptr<IRecord> reverse(IOutputStream& a_stream) final;
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final;
 };
 
 

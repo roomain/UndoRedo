@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RealocMemory.h"
 
-MShared_ptr<IRecordObject> RealocMemory::realoc(const ObjectUID& a_uid, std::weak_ptr<RTTIDefinition>& a_objectDef)
+MShared_ptr<IRecordObject> RealocMemory::realoc(const ObjectUID& a_uid, const std::weak_ptr<RTTIDefinition>& a_objectDef)
 {
 	MShared_ptr<IRecordObject> pRealocObject;
 	auto iter = m_undoRedoRealoc.find(a_uid);
