@@ -58,7 +58,7 @@ public:
 		auto pObj = m_pObject.lock();
 		if (pObj)
 		{
-			IRecordObject = pObj->uid();
+			m_newObjectUID = pObj->uid();
 		}
 		else
 		{
@@ -83,7 +83,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordRemoved>(this->getContainer(a_memory), m_objectKey, m_pObject);
+		return std::make_shared<TRecordRemoved<Key>>(this->getContainer(a_memory), m_objectKey, m_pObject);
 	}
 
 };
@@ -103,7 +103,7 @@ public:
 		auto pObj = m_pRemovedObject.lock();
 		if (pObj)
 		{
-			IRecordObject = pObj->uid();
+			m_RemovedObjectUID = pObj->uid();
 		}
 		else
 		{
@@ -119,11 +119,11 @@ public:
 		{
 			auto pObj = m_pRemovedObject.lock();
 			if(!pObj)
-				pObj = a_memory.realoc(m_RemovedObjectUID, nullptr);
+				pObj = a_memory.realoc(m_RemovedObjectUID);
 
 			if (pObj)
 			{
-				pContainer->record_insertAt(m_objectKey, pObj);
+				pContainer->record_insert(m_objectKey, pObj);
 			}
 			else
 			{
@@ -138,7 +138,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordInsert>(this->getContainer(a_memory), m_objectKey, m_pRemovedObject);
+		return std::make_shared<TRecordInsert<Key>>(this->getContainer(a_memory), m_objectKey, m_pRemovedObject);
 	}
 };
 

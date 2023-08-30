@@ -17,27 +17,27 @@ private:
 public:
 	ContainerCell() = default;
 
-	template<typename ...Args>
-	ContainerCell(const ChangeAssertion<Type>& a_cb, Args&& ...a_args) :
-		MShared_ptr<Type>(make_MShared<Type>(a_args...)), m_changeAssert{ a_cb } {}
-
-	explicit ContainerCell(ContainerCell<Type>&& a_other)noexcept : MShared_ptr<Type>(std::move(a_other))
+	explicit ContainerCell(ContainerCell<Type>&& a_other)noexcept : MShared_ptr<Type>(std::move(a_other)),
+		m_changeAssert{ a_other.m_changeAssert }
 	{
-		m_changeAssert = a_other.m_changeAssert;
 	}
 
-	explicit ContainerCell(ContainerCell<Type>& a_other)noexcept : MShared_ptr<Type>(a_other)
+	explicit ContainerCell(ContainerCell<Type>& a_other)noexcept : MShared_ptr<Type>(a_other),
+		m_changeAssert{ a_other.m_changeAssert }
 	{
-		m_changeAssert = a_other.m_changeAssert;
 	}
 
 	explicit ContainerCell(const ChangeAssertion<Type>& a_assert) : m_changeAssert{ a_assert } {}
 
-	ContainerCell(const ChangeAssertion<Type>& a_assert, const MShared_ptr<Type>& a_ptr) :
+	explicit ContainerCell(const MShared_ptr<Type>& a_ptr, const ChangeAssertion<Type>& a_assert) :
 		MShared_ptr<Type>(a_ptr), m_changeAssert{ a_assert } {}
 
-	ContainerCell(const ChangeAssertion<Type>& a_assert, MShared_ptr<Type>&& a_ptr) :
-		MShared_ptr<Type>(a_ptr), m_changeAssert{ a_assert } {}
+	explicit ContainerCell(MShared_ptr<Type>&& a_ptr, const ChangeAssertion<Type>& a_assert)noexcept :
+		MShared_ptr<Type>(std::move(a_ptr)), m_changeAssert{ a_assert } {}
+
+	template<typename ...Args>
+	ContainerCell(const ChangeAssertion<Type>& a_cb, Args&& ...a_args) :
+		MShared_ptr<Type>(make_MShared<Type>(a_args...)), m_changeAssert{ a_cb } {}
 
 	ContainerCell<Type>& operator = (const MShared_ptr<Type>& a_other)
 	{

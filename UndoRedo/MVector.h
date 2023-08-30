@@ -26,7 +26,7 @@ protected:
         }
         else
         {
-            VectorBase::push_back(ContainerCell<Type>(m_itemCallback, MStatic_pointer_cast<Type>(a_object)));
+            VectorBase::push_back(ContainerCell<Type>(MStatic_pointer_cast<Type>(a_object), m_itemCallback));
         }
     }
 
@@ -34,11 +34,11 @@ protected:
     {
         if (VectorBase::size() > a_key)
         {
-            VectorBase::insert(begin() + a_key, ContainerCell<Type>(m_itemCallback, MStatic_pointer_cast<Type>(a_object)));
+            VectorBase::insert(begin() + a_key, ContainerCell<Type>(MStatic_pointer_cast<Type>(a_object), m_itemCallback));
         }
         else
         {
-            VectorBase::push_back(ContainerCell<Type>(m_itemCallback, MStatic_pointer_cast<Type>(a_object)));
+            VectorBase::push_back(ContainerCell<Type>(MStatic_pointer_cast<Type>(a_object), m_itemCallback));
         }
     }
 
@@ -117,14 +117,14 @@ public:
 
     MVector& push_back(const std::shared_ptr<Type>& a_pointer)
     {
-        VectorBase::push_back(ContainerCell<Type>(m_itemCallback, a_pointer));
+        VectorBase::emplace_back(a_pointer, m_itemCallback);
         assert_ItemAdd(a_pointer, size() - 1);
         return *this;
     }
 
     constexpr MVector& push_back(std::shared_ptr<Type>&& a_pointer)
     {
-        VectorBase::push_back(ContainerCell<Type>(m_itemCallback, std::move(a_pointer)));
+        VectorBase::push_back(ContainerCell<Type>(std::move(a_pointer), m_itemCallback));
         ContainerCell<Type>& pt = VectorBase::back();
         assert_ItemAdd(pt, size() - 1);
         return *this;

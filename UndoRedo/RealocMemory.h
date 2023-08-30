@@ -19,6 +19,7 @@ private:
 	
 public:
 	RealocMemory() = default;
+	MShared_ptr<IRecordObject> realoc(const ObjectUID& a_uid);
 	MShared_ptr<IRecordObject> realoc(const ObjectUID& a_uid, const std::weak_ptr<RTTIDefinition>& a_objectDef);
 	void endSession();
 };

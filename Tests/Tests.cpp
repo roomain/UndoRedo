@@ -102,5 +102,24 @@ namespace UndoRedo_tests
 			Assert::AreEqual(3.14f, ptr->fVal(), L"Wrong float");
 			Assert::AreEqual(std::string("TEST_CHANGE"), ptr->sVal(), L"Wrong string");
 		}
+
+		TEST_METHOD(Test_undo_add)
+		{
+			auto pVect = make_MShared<MVector<TestRecordObject>>();
+			auto ptr = make_MShared<TestRecordObject>();
+			ptr->setValue(1);
+			ptr->setValue(3.14f);
+			ptr->setValue("TEST_ADD");
+
+			Assert::AreEqual(0, static_cast<int>(pVect->size()), L"Wrong size");
+			UndoRedo::instance().startSession("Test_Add");
+			pVect->push_back(ptr);
+			UndoRedo::instance().endSession();
+			Assert::AreEqual(1, static_cast<int>(pVect->size()), L"Wrong size");
+			Assert::IsTrue(UndoRedo::instance().hasUndo(), L"No undo");
+			UndoRedo::instance().undo();
+			Assert::AreEqual(0, static_cast<int>(pVect->size()), L"Wrong size");
+		}
+
 	};
 }
