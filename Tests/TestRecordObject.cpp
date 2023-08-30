@@ -9,11 +9,6 @@ TestRecordObject::TestRecordObject() : IRecordObject()
 	m_sValue = "TEST";
 }
 
-//TestRecordObject::TestRecordObject(const std::shared_ptr<TestRecordObject>& a_test)
-//{
-//	//
-//}
-
 void TestRecordObject::setValue(const int a_val) 
 {
 	assertModification(this);

@@ -16,7 +16,6 @@ private:
 
 public:
 	TestRecordObject();
-	//TestRecordObject(const std::shared_ptr<TestRecordObject>& a_test);
 	~TestRecordObject() = default;
 	void setValue(const int a_val);
 	void setValue(const float a_val);
