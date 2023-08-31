@@ -52,7 +52,7 @@ private:
 	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
-	RecordDeletion(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream);
+	RecordDeletion(const IRecordObject* a_pObject, IOutputStream& a_stream);
 	virtual ~RecordDeletion() = default;
 	bool hasReverse()const noexcept final{ return false; }
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final;

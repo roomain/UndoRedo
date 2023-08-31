@@ -114,7 +114,6 @@ public:
         return *this;
     }
 
-
     MVector& push_back(const std::shared_ptr<Type>& a_pointer)
     {
         VectorBase::emplace_back(a_pointer, m_itemCallback);
@@ -133,6 +132,11 @@ public:
     ContainerCell<Type>& operator[](const size_t& a_index)
     {
         return VectorBase::operator[](a_index);
+    }
+
+    const ContainerCell<Type>& at(const size_t& a_index)
+    {
+        return VectorBase::at(a_index);
     }
 
     using iterator = std::vector<ContainerCell<Type>>::iterator;
@@ -239,7 +243,7 @@ public:
             // TODO
         }
 
-        return definition()->version();
+        return isA()->version();
     }
 
     /*@brief save object to stream*/

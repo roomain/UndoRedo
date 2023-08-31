@@ -2,6 +2,7 @@
 #include "MShared_ptr.h"
 #include <type_traits>
 
+
 template<typename T>
 class MShared_from_this
 {

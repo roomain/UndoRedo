@@ -11,7 +11,7 @@ RecordModification::RecordModification(const std::weak_ptr<IRecordObject>& a_pOb
 	auto pObj = a_pObject.lock();
 	if (pObj)
 	{
-		m_pObjectDef = pObj->definition();
+		m_pObjectDef = pObj->isA();
 		m_objectUID = pObj->uid();
 		m_recordDataOffset = a_stream.offset();
 		pObj->save(a_stream);
@@ -48,15 +48,14 @@ std::shared_ptr<IRecord> RecordModification::reverse(RealocMemory& a_memory, IOu
 }
 
 //-----------------------------------------------------------------------------------------
-RecordDeletion::RecordDeletion(const std::weak_ptr<IRecordObject>& a_pObject, IOutputStream& a_stream)
+RecordDeletion::RecordDeletion(const IRecordObject* a_pObject, IOutputStream& a_stream)
 {
-	auto pObj = a_pObject.lock();
-	if (pObj)
+	if (a_pObject)
 	{
-		m_pObjectDef = pObj->definition();
-		m_objectUID = pObj->uid();
+		m_pObjectDef = a_pObject->isA();
+		m_objectUID = a_pObject->uid();
 		m_recordDataOffset = a_stream.offset();
-		pObj->save(a_stream);
+		a_pObject->save(a_stream);
 	}
 	else
 	{

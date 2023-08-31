@@ -41,7 +41,7 @@ public:
 
 	ContainerCell<Type>& operator = (const MShared_ptr<Type>& a_other)
 	{
-		if (MShared_ptr<Type>::operator != (a_other))
+		if (this->get() != a_other.get())
 		{
 			if (m_changeAssert)
 				m_changeAssert(this, *this, a_other);
@@ -81,5 +81,18 @@ public:
 			MShared_ptr<Type>::operator = (a_other);
 		}
 		return *this;
+	}
+
+	virtual ~ContainerCell()
+	{
+		//if constexpr (std::is_base_of_v<IRecordObject, Type>)
+		//{
+		//	int iCount = std::shared_ptr<Type>::use_count();
+		//	if (std::shared_ptr<Type>::use_count() == 1)
+		//	{
+		//		auto p = std::shared_ptr<Type>::get();
+		//		assertDeletion(const_cast<IRecordObject* const>(static_cast<const IRecordObject*>(std::shared_ptr<Type>::get())));
+		//	}
+		//}
 	}
 };

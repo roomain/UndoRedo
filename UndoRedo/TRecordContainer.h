@@ -5,6 +5,8 @@
 #include "TIContainer.h"
 #include "UndoRedoException.h"
 
+class RTTIDefinition;
+
 template<typename Key>
 class TRecordContainer : public IRecord
 {
@@ -19,7 +21,7 @@ public:
 		auto pObj = m_pContainerObject.lock();
 		if (pObj)
 		{
-			m_pObjectDef = pObj->definition();
+			m_pObjectDef = pObj->isA();
 			m_containerObjectUID = pObj->uid();
 		}
 		else
@@ -65,6 +67,12 @@ public:
 			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
 		}
 	}
+
+	TRecordInsert(const std::weak_ptr<TIContainer<Key>>& a_pContainer, const Key& a_key, const ObjectUID& a_pNewObjectUID) :
+		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_newObjectUID{ a_pNewObjectUID }
+	{
+	}
+
 
 	virtual ~TRecordInsert() = default;
 
@@ -138,7 +146,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordInsert<Key>>(this->getContainer(a_memory), m_objectKey, m_pRemovedObject);
+		return std::make_shared<TRecordInsert<Key>>(this->getContainer(a_memory), m_objectKey, m_RemovedObjectUID);
 	}
 };
 

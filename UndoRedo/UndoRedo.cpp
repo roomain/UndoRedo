@@ -38,7 +38,7 @@ bool UndoRedo::hasRedo()const
 
 bool UndoRedo::sessionStarted()const
 {
-	return m_curUndoSession.has_value();
+	return m_curUndoSession.has_value() && m_HasActiveSession;
 }
 
 RecordSession& UndoRedo::currentSession()
