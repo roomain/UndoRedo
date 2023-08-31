@@ -232,5 +232,35 @@ namespace UndoRedo_tests
 			Assert::AreEqual(3.14f, pVect->at(0)->fVal(), L"Wrong float");
 			Assert::AreEqual(std::string("TEST_1"), pVect->at(0)->sVal(), L"Wrong string");
 		}
+
+		TEST_METHOD(Test_undo_redo_erase)
+		{
+			auto pVect = make_MShared<MVector<TestRecordObject>>();
+
+			{
+				auto ptr = make_MShared<TestRecordObject>();
+				ptr->setValue(1);
+				ptr->setValue(3.14f);
+				ptr->setValue("TEST_1");
+				pVect->push_back(ptr);
+			}
+
+			Assert::AreEqual(1, static_cast<int>(pVect->size()), L"Wrong size");
+			UndoRedo::instance().startSession("Test_erase");
+			pVect->pop_back();
+			UndoRedo::instance().endSession();
+			Assert::AreEqual(0, static_cast<int>(pVect->size()), L"Wrong size");
+
+			UndoRedo::instance().undo();
+			Assert::AreEqual(1, static_cast<int>(pVect->size()), L"Wrong size");
+
+			Assert::AreEqual(1, pVect->at(0)->iVal(), L"Wrong int");
+			Assert::AreEqual(3.14f, pVect->at(0)->fVal(), L"Wrong float");
+			Assert::AreEqual(std::string("TEST_1"), pVect->at(0)->sVal(), L"Wrong string");
+
+			UndoRedo::instance().redo();
+			Assert::AreEqual(0, static_cast<int>(pVect->size()), L"Wrong size");
+		}
+
 	};
 }
