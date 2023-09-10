@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <variant>
 #include "MShared_ptr.h"
 #include "Defines.h"
 #include "RTTIDefinition.h"
@@ -10,6 +11,7 @@ class IInputStream;
 class IOutputStream;
 class IRecordObject;
 class RTTIDefinition;
+
 
 /*@brief record interface used for undo/redo*/
 class IRecord

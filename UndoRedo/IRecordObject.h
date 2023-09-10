@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include "MMemory.h"
+#include "Reference.h"
 #include "IOutputStream.h"
 #include "IInputStream.h"
 #include "MShared_ptr.h"
@@ -12,7 +13,8 @@
 #pragma warning(disable : 4251)
 
 /*@brief interface for recordable object*/
-class UNDO_REDO_EXPORT IRecordObject : public MShared_from_this<IRecordObject>
+class UNDO_REDO_EXPORT IRecordObject : public MShared_from_this<IRecordObject>, 
+	public Referenced<IRecordObject>
 {
 	DECLARE_RTTI(1, IRecordObject)
 

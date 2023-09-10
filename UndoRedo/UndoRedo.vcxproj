@@ -145,6 +145,8 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="MVector.h" />
+    <ClInclude Include="RecordData.h" />
+    <ClInclude Include="Reference.h" />
     <ClInclude Include="TIContainer.h" />
     <ClInclude Include="UndoRedoExceptionDefines.h" />
     <ClInclude Include="framework.h" />
@@ -186,6 +188,7 @@
     <ClCompile Include="RealocMemory.cpp" />
     <ClCompile Include="Record.cpp" />
     <ClCompile Include="RecordAssertions.cpp" />
+    <ClCompile Include="RecordData.cpp" />
     <ClCompile Include="RecordSession.cpp" />
     <ClCompile Include="RTTIDefinition.cpp" />
     <ClCompile Include="RTTIException.cpp" />

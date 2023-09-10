@@ -141,6 +141,12 @@
     <ClInclude Include="MVector.h">
       <Filter>Fichiers d%27en-tête\Container</Filter>
     </ClInclude>
+    <ClInclude Include="Reference.h">
+      <Filter>Fichiers d%27en-tête\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordData.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -181,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="UndoRedoException.cpp">
       <Filter>Fichiers sources\Exception</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordData.cpp">
+      <Filter>Fichiers sources\Undo/Redo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

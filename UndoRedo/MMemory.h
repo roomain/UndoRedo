@@ -17,28 +17,33 @@ public:
     MShared_from_this(MShared_from_this<T>& a_other) : m_Wptr(a_other.m_Wptr) {}
     MShared_from_this(MShared_from_this<T>&& a_other)noexcept : m_Wptr(a_other.m_Wptr) {}
     virtual ~MShared_from_this() = default;
-    MShared_ptr<T> shared_from_this()
+    [[nodiscard]] bool isShared()const noexcept
+    {
+        return !m_Wptr.expired();
+    }
+
+    [[nodiscard]] MShared_ptr<T> shared_from_this()
     {
         if (!m_Wptr.lock())
             throw std::bad_weak_ptr{};
         return MShared_ptr<T>(m_Wptr);
     }
 
-    MShared_ptr<const T> shared_from_const_this()const
+    [[nodiscard]] MShared_ptr<const T> shared_from_const_this()const
     {
         if (!m_Wptr.lock())
             throw std::bad_weak_ptr{};
         return MShared_ptr<const T>(m_Wptr);
     }
 
-    std::weak_ptr<T> weak_from_this()
+    [[nodiscard]] std::weak_ptr<T> weak_from_this()
     {
         if (!m_Wptr.lock())
             throw std::bad_weak_ptr{};
         return m_Wptr;
     }
 
-    std::weak_ptr<const T> weak_from_const_this()
+    [[nodiscard]] std::weak_ptr<const T> weak_from_const_this()
     {
         if (!m_Wptr.lock())
             throw std::bad_weak_ptr{};

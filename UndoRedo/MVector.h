@@ -48,37 +48,6 @@ protected:
             VectorBase::erase(begin() + a_index);
     }
 
-    void assert_ItemAdd(const MShared_ptr<Type>& a_pItem, const size_t a_index)
-    {
-        if (UndoRedo::instance().sessionStarted())
-        {
-            RecordSession& curSession = UndoRedo::instance().currentSession();
-            std::weak_ptr<TIContainer<size_t>> ptr = std::dynamic_pointer_cast<TIContainer<size_t>>(shared_from_this());
-            curSession.addRecord(std::make_shared<TRecordInsert<size_t>>(ptr, a_index, a_pItem));
-        }
-    }
-
-    void assert_ItemRemoved(const MShared_ptr<Type>& a_pItem, const size_t a_index)
-    {
-        if (UndoRedo::instance().sessionStarted())
-        {
-            RecordSession& curSession = UndoRedo::instance().currentSession();
-            std::weak_ptr<TIContainer<size_t>> ptr = std::dynamic_pointer_cast<TIContainer<size_t>>(shared_from_this());
-            curSession.addRecord(std::make_shared<TRecordRemoved<size_t>>(ptr, a_index, a_pItem));
-        }
-    }
-
-    void assert_ItemChanged(const ContainerCell<Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
-    {
-        if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
-        {
-            const size_t index = a_pItem - VectorBase::data();
-            RecordSession& curSession = UndoRedo::instance().currentSession();
-            std::weak_ptr<TIContainer<size_t>> ptr = std::dynamic_pointer_cast<TIContainer<size_t>>(shared_from_this());
-            curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(ptr, index, a_pAfter, a_pBefore));
-        }
-    }
-
     bool m_bActiveCallback = true; /*!< active the assert_ItemChanged callback*/
 
 public:

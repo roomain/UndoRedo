@@ -12,11 +12,11 @@ class TRecordContainer : public IRecord
 {
 private:
 	ObjectUID m_containerObjectUID;
-	std::weak_ptr<TIContainer<Key>> m_pContainerObject;
+	TContainerProxy<Key> m_pContainerObject;
 	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
-	TRecordContainer(const std::weak_ptr<TIContainer<Key>>& a_pContainer) : m_pContainerObject{ a_pContainer }
+	TRecordContainer(const TContainerProxy<Key>& a_pContainer) : m_pContainerObject{ a_pContainer }
 	{
 		auto pObj = m_pContainerObject.lock();
 		if (pObj)
@@ -51,10 +51,10 @@ class TRecordInsert : public TRecordContainer<Key>
 private:
 	Key m_objectKey;
 	ObjectUID m_newObjectUID;
-	std::weak_ptr<IRecordObject> m_pObject;
+	TContainerProxy<Key> m_pObject;
 
 public:
-	TRecordInsert(const std::weak_ptr<TIContainer<Key>>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
+	TRecordInsert(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
 		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_pObject{ a_pNewObject }
 	{
 		auto pObj = m_pObject.lock();
@@ -105,7 +105,7 @@ private:
 	std::weak_ptr<IRecordObject> m_pRemovedObject;
 
 public:
-	TRecordRemoved(const std::weak_ptr<TIContainer<Key>>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
+	TRecordRemoved(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
 		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_pRemovedObject{ a_pRemovedObject }
 	{
 		auto pObj = m_pRemovedObject.lock();
@@ -161,7 +161,7 @@ private:
 	std::weak_ptr<IRecordObject> m_pOldObject;
 
 public:
-	TRecordChanged(const std::weak_ptr<TIContainer<Key>>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
+	TRecordChanged(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
 		const std::weak_ptr<IRecordObject>& a_pOldObject) :
 		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }, m_pOldObject{ a_pOldObject }
 	{
