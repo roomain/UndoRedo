@@ -14,7 +14,7 @@
 
 /*@brief interface for recordable object*/
 class UNDO_REDO_EXPORT IRecordObject : public MShared_from_this<IRecordObject>, 
-	public Referenced<IRecordObject>
+	public RefObject
 {
 	DECLARE_RTTI(1, IRecordObject)
 

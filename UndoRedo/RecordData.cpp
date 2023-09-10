@@ -32,7 +32,7 @@ IRecordObject* const RecordData::get()const
 		break;
 
 	case VariantType::reference:
-		pointer = std::get<Reference<IRecordObject>>(m_data).pointer();
+		pointer = std::get<Ref<IRecordObject>>(m_data).pointer();
 		break;
 
 	default:
@@ -59,7 +59,7 @@ IRecordObject* const RecordData::get(RealocMemory& a_memory)
 
 	case VariantType::reference:
 	{
-		pointer = std::get<Reference<IRecordObject>>(m_data).pointer();
+		pointer = std::get<Ref<IRecordObject>>(m_data).pointer();
 	}
 		break;
 

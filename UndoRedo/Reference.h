@@ -1,55 +1,36 @@
 #pragma once
 
-template<typename Type>
-class Reference;
+#include <type_traits>
 
-template<typename T>
-class Referenced
+class RefObject;
+
+
+
+class IRef
 {
-    friend  Reference<T>;
+    friend class RefObject;
 
-    template<typename Type>
-    friend Reference<Type> make_ref(const Referenced<Type>&);
-private:
-    mutable Reference<T>* m_referenceList = nullptr;
+protected:
+    mutable IRef* m_prevRef = nullptr;
+    mutable IRef* m_nextRef = nullptr;
+
+    virtual void reset() = 0;
+
 public:
-    Referenced()
+    void selfRemove()
     {
-        //
+        if (m_prevRef)
+        {
+            m_prevRef->m_nextRef = m_nextRef;
+            if (m_nextRef)
+                m_nextRef->m_prevRef = m_prevRef;
+        }
     }
 
-    ~Referenced()
+    void appendRef(IRef* const a_ref)const
     {
-        if (m_referenceList)
-            m_referenceList->unref();
-    }
-
-    Referenced<T>* const getRefPointer() const
-    {
-        return const_cast<Referenced<T>*const>(this);
-    }
-
-};
-
-
-
-template<typename Type>
-class Reference
-{
-    friend Referenced<Type>;
-
-    template<typename T>
-    friend Reference<T> make_ref(const T&);
-
-private:
-    mutable Reference<Type>* m_prevRef = nullptr;
-    mutable Reference<Type>* m_nextRef = nullptr;
-    Referenced<Type>* m_referenced = nullptr;
-
-    void appendRef(Reference<Type>* const a_ref)const
-    {
-        Reference<Type>* pCurRef = const_cast<Reference<Type>*>(this);
-        Reference<Type>* pLastRef = m_nextRef;
+        IRef* pCurRef = const_cast<IRef*>(this);
+        IRef* pLastRef = m_nextRef;
         while (pLastRef)
         {
             pCurRef = pLastRef;
@@ -61,47 +42,112 @@ private:
 
     void unref()
     {
-        m_referenced = nullptr;
-        Reference<Type>* pLastRef = m_nextRef;
+        reset();
+        IRef* pLastRef = m_nextRef;
         while (pLastRef)
         {
-            pLastRef->m_referenced = nullptr;
+            pLastRef->reset();
             pLastRef = pLastRef->m_nextRef;
         }
     }
-       
-    Reference(const Referenced<Type>& a_referenced)  : m_referenced{ a_referenced.Referenced<Type>::getRefPointer() }
+
+    IRef* const next()const
     {
-        if (m_referenced->m_referenceList == nullptr)
+        return m_nextRef;
+    }
+
+    void setNext(IRef* const a_ref)
+    {
+        m_nextRef = a_ref;
+    }
+
+    IRef() = default;
+    virtual ~IRef()
+    {
+        //
+    }
+
+};
+
+template<typename Type> requires std::is_base_of_v<RefObject, Type>
+class Ref;
+
+class RefObject
+{
+    friend  IRef;
+
+    template<typename Type> requires std::is_base_of_v<RefObject, Type>
+    friend class Ref;
+
+protected:
+    mutable IRef* m_RefList = nullptr;
+
+public:
+    RefObject()
+    {
+        //
+    }
+
+    ~RefObject()
+    {
+        if (m_RefList)
+            m_RefList->unref();
+    }
+
+};
+
+
+
+template<typename Type> requires std::is_base_of_v<RefObject, Type>
+class Ref : public IRef
+{
+    template<typename T>
+    friend Ref<T> make_ref(const T&);
+
+protected:
+    Type* m_RefObject = nullptr;
+
+    void reset()
+    {
+        m_RefObject = nullptr;
+    }
+
+
+    Ref(const Type& a_RefObject) : m_RefObject{ const_cast<Type*>(&a_RefObject) }
+    {
+        if (m_RefObject->m_RefList == nullptr)
         {
-            m_referenced->m_referenceList = this;
+            m_RefObject->m_RefList = this;
         }
         else
         {
-            m_referenced->m_referenceList->appendRef(this);
+            m_RefObject->m_RefList->appendRef(this);
         }
     }
 
-    Reference(Type* const a_referenced) : m_referenced{ a_referenced->getRefPointer() }
+    Ref(Type* const a_RefObject) : m_RefObject{ a_RefObject }
     {
-        if (m_referenced->m_referenceList == nullptr)
+        if (m_RefObject)
         {
-            m_referenced->m_referenceList = this;
-        }
-        else
-        {
-            m_referenced->m_referenceList->appendRef(this);
+            if (m_RefObject->m_RefList == nullptr)
+            {
+                m_RefObject->m_RefList = this;
+            }
+            else
+            {
+                m_RefObject->m_RefList->appendRef(this);
+            }
         }
     }
 
 public:
-    Reference() = default;
+    Ref() = default;
 
-    Reference(const Reference<Type>& a_other) : m_referenced{ a_other.m_referenced }
+    Ref(const Ref<Type>& a_other) : m_RefObject{ a_other.m_RefObject }
     {
-        if (m_referenced->m_referenceList == nullptr)
+        if (static_cast<RefObject*>(m_RefObject)->m_RefList == nullptr)
         {
-            m_referenced->m_referenceList = this;
+            static_cast<RefObject*>(m_RefObject)->m_RefList = this;
         }
         else
         {
@@ -109,49 +155,49 @@ public:
         }
     }
 
-    ~Reference()
+    ~Ref()
     {
-        if (m_referenced)
+        if (m_RefObject)
         {
-            if (m_referenced->m_referenceList == this)
+            if (static_cast<RefObject*>(m_RefObject)->m_RefList == this)
             {
-                m_referenced->m_referenceList = m_nextRef;
+                static_cast<RefObject*>(m_RefObject)->m_RefList = m_nextRef;
             }
             else
             {
-                m_prevRef->m_nextRef = m_nextRef;
+                selfRemove();
             }
         }
     }
 
     Type* const operator -> ()
     {
-        return static_cast<Type*>(m_referenced);
+        return static_cast<Type*>(m_RefObject);
     }
 
     Type* const pointer() const
     {
-        return static_cast<Type* const>(m_referenced);
+        return static_cast<Type* const>(m_RefObject);
     }
 
-    Reference<Type>& operator = (const Reference<Type>& a_other)
+    Ref<Type>& operator = (const Ref<Type>& a_other)
     {
-        if (m_referenced)
+        if (m_RefObject)
         {
-            if (m_referenced->m_referenceList == this)
+            if (m_RefObject->m_RefList == this)
             {
-                m_referenced->m_referenceList = m_nextRef;
+                m_RefObject->m_RefList = m_nextRef;
             }
             else
             {
-                m_prevRef->m_nextRef = m_nextRef;
+                m_prevRef->setNext(m_nextRef);
             }
         }
 
-        m_referenced = a_other.m_referenced;
-        if (m_referenced->m_referenceList == nullptr)
+        m_RefObject = a_other.m_RefObject;
+        if (m_RefObject->m_RefList == nullptr)
         {
-            m_referenced->m_referenceList = this;
+            m_RefObject->m_RefList = this;
         }
         else
         {
@@ -163,13 +209,13 @@ public:
     size_t use_count()const
     {
         size_t counter = 0;
-        if (m_referenced)
+        if (m_RefObject)
         {
-            Reference<Type>* pLastRef = m_referenced->m_referenceList;
+            IRef* pLastRef = m_RefObject->m_RefList;
             while (pLastRef)
             {
                 counter++;
-                pLastRef = pLastRef->m_nextRef;
+                pLastRef = pLastRef->next();
             }
         }
         return counter;
@@ -177,13 +223,13 @@ public:
 
     bool valid()const
     {
-        return m_referenced != nullptr;
+        return m_RefObject != nullptr;
     }
 
 };
 
-template<typename T>
-Reference<T> make_ref(const T& a_object)
+template<typename T> //requires std::is_base_of_v<RefObject, T>
+Ref<T> make_ref(const T& a_object)
 {
-    return Reference<T>(a_object);
+    return Ref<T>(a_object);
 }

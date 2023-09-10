@@ -22,7 +22,7 @@ template<typename Key>
 class TRecordChanged;
 
 template<typename Key>
-class TIContainer : public Referenced<TIContainer<Key>>, public IRecordObject
+class TIContainer : public IRecordObject
 {
     DECLARE_RTTI_DERIVED(1, TIContainer<Key>, IRecordObject)
 	friend class TRecordInsert<Key>;
@@ -71,7 +71,7 @@ protected:
 template<typename Key>
 class TContainerProxy
 {
-    using ContainerProxy = std::variant<std::weak_ptr<TIContainer<Key>>, Reference<TIContainer<Key>>>;
+    using ContainerProxy = std::variant<std::weak_ptr<TIContainer<Key>>, Ref<TIContainer<Key>>>;
 
 private:
     ContainerProxy m_proxy;
@@ -116,7 +116,7 @@ public:
             bRet = !std::get<std::weak_ptr<TIContainer<Key>>>(m_proxy).expired();
             break;
         case AcessType::Reference:
-            bRet = std::get<Reference<TIContainer<Key>>>(m_proxy).valid();
+            bRet = std::get<Ref<TIContainer<Key>>>(m_proxy).valid();
             break;
         default:
             break;
@@ -131,7 +131,7 @@ public:
         case AcessType::Weak_ptr:
             return std::get<std::weak_ptr<TIContainer<Key>>>(m_proxy).lock().get();
         case AcessType::Reference:
-            return std::get<Reference<TIContainer<Key>>>(m_proxy).operator->();
+            return std::get<Ref<TIContainer<Key>>>(m_proxy).operator->();
         default:
             break;
         }
@@ -145,7 +145,7 @@ public:
         case AcessType::Weak_ptr:
             return std::get<std::weak_ptr<TIContainer<Key>>>(m_proxy).lock().get();
         case AcessType::Reference:
-            return std::get<Reference<TIContainer<Key>>>(m_proxy).pointer();
+            return std::get<Ref<TIContainer<Key>>>(m_proxy).pointer();
         default:
             break;
         }
@@ -159,7 +159,7 @@ public:
         case AcessType::Weak_ptr:
             return std::get<std::weak_ptr<TIContainer<Key>>>(m_proxy).lock().get();
         case AcessType::Reference:
-            return std::get<Reference<TIContainer<Key>>>(m_proxy).pointer();
+            return std::get<Ref<TIContainer<Key>>>(m_proxy).pointer();
         default:
             break;
         }

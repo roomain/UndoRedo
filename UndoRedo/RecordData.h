@@ -6,7 +6,7 @@
 class IRecordObject;
 class RealocMemory;
 
-using RecordDataVar = std::variant<std::weak_ptr<IRecordObject>, Reference<IRecordObject>>;
+using RecordDataVar = std::variant<std::weak_ptr<IRecordObject>, Ref<IRecordObject>>;
 
 class RecordData
 {
