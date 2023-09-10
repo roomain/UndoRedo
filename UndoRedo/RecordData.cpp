@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "RecordData.h"
 #include "IRecordObject.h"
 #include "RealocMemory.h"

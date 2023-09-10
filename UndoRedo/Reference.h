@@ -69,8 +69,8 @@ private:
             pLastRef = pLastRef->m_nextRef;
         }
     }
-
-    Reference(const Type& a_referenced) : m_referenced{ a_referenced.getRefPointer() }
+       
+    Reference(const Referenced<Type>& a_referenced)  : m_referenced{ a_referenced.Referenced<Type>::getRefPointer() }
     {
         if (m_referenced->m_referenceList == nullptr)
         {
@@ -131,10 +131,10 @@ public:
 
     Type* const pointer() const
     {
-        return static_cast<Type*>(m_referenced);
+        return static_cast<Type* const>(m_referenced);
     }
 
-    Reference<Type> operator = (const Reference<Type>& a_other)
+    Reference<Type>& operator = (const Reference<Type>& a_other)
     {
         if (m_referenced)
         {
@@ -183,7 +183,6 @@ public:
 };
 
 template<typename T>
-//    requires std::is_base_of_v < Referenced<T>,  T >
 Reference<T> make_ref(const T& a_object)
 {
     return Reference<T>(a_object);

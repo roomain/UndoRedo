@@ -3,12 +3,8 @@
 #include <vector>
 #include "MMemory.h"
 #include "TIContainer.h"
-#include "ContainerCell.h"
-#include "RTTIDefinition_macros.h"
 #include "TRecordContainer.h"
-#include "UndoRedo.h"
-#include "RecordSession.h"
-#include "InputBinStream.h"
+#include "RTTIDefinition_macros.h"
 
 template<typename Type> requires std::is_base_of_v<IRecordObject, Type>
 class MVector : public TIContainer<size_t>, private std::vector<ContainerCell<Type>>
@@ -17,6 +13,8 @@ class MVector : public TIContainer<size_t>, private std::vector<ContainerCell<Ty
 private:
 	using VectorBase = std::vector<ContainerCell<Type>>;
 	ChangeAssertion<Type> m_itemCallback;
+    bool m_bActiveCallback = true;
+
 protected:
     void record_replace(const size_t& a_key, const IRecordObjectPtr& a_object)final
     {
@@ -48,7 +46,33 @@ protected:
             VectorBase::erase(begin() + a_index);
     }
 
-    bool m_bActiveCallback = true; /*!< active the assert_ItemChanged callback*/
+    //void assert_ItemAdd(const MShared_ptr<Type>& a_pItem, const size_t& a_index)
+    //{
+    //    if (UndoRedo::instance().sessionStarted())
+    //    {
+    //        RecordSession& curSession = UndoRedo::instance().currentSession();
+    //        curSession.addRecord(std::make_shared<TRecordInsert<size_t>>(TContainerProxy<size_t>(this), a_index, a_pItem));
+    //    }
+    //}
+    //
+    //void assert_ItemRemoved(const MShared_ptr<Type>& a_pItem, const size_t& a_index)
+    //{
+    //    if (UndoRedo::instance().sessionStarted())
+    //    {
+    //        RecordSession& curSession = UndoRedo::instance().currentSession();
+    //        curSession.addRecord(std::make_shared<TRecordRemoved<size_t>>(TContainerProxy<size_t>(this), a_index, a_pItem));
+    //    }
+    //}
+
+    void assert_ItemChanged(const ContainerCell<Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
+    {
+        if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
+        {
+            RecordSession& curSession = UndoRedo::instance().currentSession();
+            curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(TContainerProxy<size_t>(this), a_pItem - VectorBase::data(), a_pAfter, a_pBefore));
+        }
+    }
+
 
 public:
     MVector()
@@ -83,14 +107,14 @@ public:
         return *this;
     }
 
-    MVector& push_back(const std::shared_ptr<Type>& a_pointer)
+    MVector& push_back(const MShared_ptr<Type>& a_pointer)
     {
         VectorBase::emplace_back(a_pointer, m_itemCallback);
         assert_ItemAdd(a_pointer, size() - 1);
         return *this;
     }
 
-    constexpr MVector& push_back(std::shared_ptr<Type>&& a_pointer)
+    constexpr MVector& push_back(MShared_ptr<Type>&& a_pointer)
     {
         VectorBase::push_back(ContainerCell<Type>(std::move(a_pointer), m_itemCallback));
         ContainerCell<Type>& pt = VectorBase::back();
@@ -120,14 +144,14 @@ public:
     using const_iterator = std::vector<ContainerCell<Type>>::const_iterator;
     const_iterator cbegin()const { return VectorBase::cbegin(); }
     const_iterator cend()const { return VectorBase::cend(); }
-    iterator insert(const_iterator a_pos, const std::shared_ptr<Type>& a_object)
+    iterator insert(const_iterator a_pos, const MShared_ptr<Type>& a_object)
     {
         auto iter = VectorBase::insert(a_pos, ContainerCell<Type>(m_itemCallback, a_object));
         assert_ItemAdd((*iter), iter - begin());
         return iter;
     }
 
-    constexpr iterator insert(const_iterator a_pos, std::shared_ptr<Type>&& a_object)
+    constexpr iterator insert(const_iterator a_pos, MShared_ptr<Type>&& a_object)
     {
         auto iter = VectorBase::insert(a_pos, ContainerCell<Type>(m_itemCallback, std::move(a_object)));
         assert_ItemAdd((*iter), std::distance(iter, begin()));
@@ -149,19 +173,19 @@ public:
     iterator erase(iterator a_pos)
     {
         assert_ItemRemoved((*a_pos), std::distance(a_pos, begin()));
-        m_bActiveCallback = false;
+        TIContainer<size_t, Type>::m_bActiveCallback = false;
         auto iter = VectorBase::erase(a_pos);
-        m_bActiveCallback = true;
+        TIContainer<size_t, Type>::m_bActiveCallback = true;
         return iter;
     }
 
     constexpr iterator erase(const_iterator a_pos)
     {
-        m_bActiveCallback = false;
+        TIContainer<size_t, Type>::m_bActiveCallback = false;
         assert_ItemRemoved((*a_pos), std::distance(a_pos, cbegin()));
-        m_bActiveCallback = false;
+        TIContainer<size_t, Type>::m_bActiveCallback = false;
         auto iter = VectorBase::erase(a_pos);
-        m_bActiveCallback = true;
+        TIContainer<size_t, Type>::m_bActiveCallback = true;
         return iter;
     }
 
@@ -173,24 +197,24 @@ public:
                 assert_ItemRemoved(a_obj, index);
                 ++index;
             });
-        m_bActiveCallback = false;
+        TIContainer<size_t, Type>::m_bActiveCallback = false;
         auto iter = VectorBase::erase(a_first, a_last);
-        m_bActiveCallback = true;
+        TIContainer<size_t, Type>::m_bActiveCallback = true;
         return iter;
     }
 
     constexpr iterator erase(const_iterator a_first, const_iterator a_last)
     {
-        m_bActiveCallback = false;
+        TIContainer<size_t, Type>::m_bActiveCallback = false;
         size_t index = 0;
         std::for_each(a_first, a_last - 1, [this](auto&& a_obj)
             {
                 assert_ItemRemoved(a_obj, index);
                 ++index;
             });
-        m_bActiveCallback = false;
+        TIContainer<size_t, Type>::m_bActiveCallback = false;
         auto iter = VectorBase::erase(a_first, a_last);
-        m_bActiveCallback = true;
+        TIContainer<size_t, Type>::m_bActiveCallback = true;
         return iter;
     }
 

@@ -8,21 +8,20 @@
 class RTTIDefinition;
 
 template<typename Key>
-class TRecordContainer : public IRecord
+class ContainerRecordProxy
 {
 private:
 	ObjectUID m_containerObjectUID;
-	TContainerProxy<Key> m_pContainerObject;
+	TContainerProxy<Key> m_containerProxy;
 	std::weak_ptr<RTTIDefinition> m_pObjectDef;
 
 public:
-	TRecordContainer(const TContainerProxy<Key>& a_pContainer) : m_pContainerObject{ a_pContainer }
+	ContainerRecordProxy(const TContainerProxy<Key>& a_pContainer) : m_containerProxy{ a_pContainer }
 	{
-		auto pObj = m_pContainerObject.lock();
-		if (pObj)
+		if (m_containerProxy.valid())
 		{
-			m_pObjectDef = pObj->isA();
-			m_containerObjectUID = pObj->uid();
+			m_pObjectDef = m_containerProxy->isA();
+			m_containerObjectUID = m_containerProxy->uid();
 		}
 		else
 		{
@@ -30,14 +29,33 @@ public:
 		}
 	}
 
-	virtual ~TRecordContainer() = default;
-	std::shared_ptr<TIContainer<Key>> getContainer(RealocMemory& a_memory)
+	ContainerRecordProxy(const ContainerRecordProxy<Key>& a_other) : m_containerProxy{ a_other.m_containerProxy }
 	{
-		auto pObj = m_pContainerObject.lock();
-		if (!pObj)
+		if (m_containerProxy.valid())
 		{
-			pObj = MStatic_pointer_cast<TIContainer<Key>>(a_memory.realoc(m_containerObjectUID, m_pObjectDef));
-			m_pContainerObject = pObj;
+			m_pObjectDef = m_containerProxy->isA();
+			m_containerObjectUID = m_containerProxy->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	virtual ~ContainerRecordProxy() = default;
+
+	bool containerValid()const
+	{
+		return m_containerProxy.valid();
+	}
+
+	TIContainer<Key>* getContainer(RealocMemory& a_memory)
+	{
+		auto pObj = m_containerProxy.pointer();
+		if (nullptr == pObj && m_containerProxy.isShared())
+		{
+			m_containerProxy = MStatic_pointer_cast<TIContainer<Key>>(a_memory.realoc(m_containerObjectUID, m_pObjectDef));
+			pObj = m_containerProxy.pointer();
 		}
 
 		return pObj;
@@ -46,16 +64,17 @@ public:
 
 
 template<typename Key>
-class TRecordInsert : public TRecordContainer<Key>
+class TRecordInsert : public IRecord
 {
 private:
 	Key m_objectKey;
 	ObjectUID m_newObjectUID;
-	TContainerProxy<Key> m_pObject;
+	std::weak_ptr<IRecordObject> m_pObject;
+	ContainerRecordProxy<Key> m_proxy;
 
 public:
 	TRecordInsert(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
-		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_pObject{ a_pNewObject }
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pObject{ a_pNewObject }
 	{
 		auto pObj = m_pObject.lock();
 		if (pObj)
@@ -68,17 +87,37 @@ public:
 		}
 	}
 
-	TRecordInsert(const std::weak_ptr<TIContainer<Key>>& a_pContainer, const Key& a_key, const ObjectUID& a_pNewObjectUID) :
-		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_newObjectUID{ a_pNewObjectUID }
+	TRecordInsert(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const ObjectUID& a_objUID) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_newObjectUID{ a_objUID }
 	{
+		//
 	}
 
+	TRecordInsert(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pObject{ a_pNewObject }
+	{
+		auto pObj = m_pObject.lock();
+		if (pObj)
+		{
+			m_newObjectUID = pObj->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	TRecordInsert(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const ObjectUID& a_objUID) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_newObjectUID{ a_objUID }
+	{
+		//
+	}
 
 	virtual ~TRecordInsert() = default;
 
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{	
-		auto pContainer = this->getContainer(a_memory);
+		auto pContainer = m_proxy.getContainer(a_memory);
 		if (pContainer)
 		{
 			pContainer->record_eraseAt(m_objectKey);
@@ -91,22 +130,37 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordRemoved<Key>>(this->getContainer(a_memory), m_objectKey, m_pObject);
+		return std::make_shared<TRecordRemoved<Key>>(m_proxy, m_objectKey, m_pObject);
 	}
 
 };
 
 template<typename Key>
-class TRecordRemoved : public TRecordContainer<Key>
+class TRecordRemoved : public IRecord
 {
 private:
 	Key m_objectKey;
 	ObjectUID m_RemovedObjectUID;
 	std::weak_ptr<IRecordObject> m_pRemovedObject;
+	ContainerRecordProxy<Key> m_proxy;
 
 public:
 	TRecordRemoved(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
-		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_pRemovedObject{ a_pRemovedObject }
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pRemovedObject{ a_pRemovedObject }
+	{
+		auto pObj = m_pRemovedObject.lock();
+		if (pObj)
+		{
+			m_RemovedObjectUID = pObj->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	TRecordRemoved(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pRemovedObject{ a_pRemovedObject }
 	{
 		auto pObj = m_pRemovedObject.lock();
 		if (pObj)
@@ -122,10 +176,10 @@ public:
 
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{
-		auto pContainer = this->getContainer(a_memory);
+		auto pContainer = m_proxy.getContainer(a_memory);
 		if (pContainer)
 		{
-			auto pObj = m_pRemovedObject.lock();
+			MShared_ptr<IRecordObject> pObj = m_pRemovedObject.lock();
 			if(!pObj)
 				pObj = a_memory.realoc(m_RemovedObjectUID);
 
@@ -146,12 +200,12 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordInsert<Key>>(this->getContainer(a_memory), m_objectKey, m_RemovedObjectUID);
+		return std::make_shared<TRecordInsert<Key>>(m_proxy, m_objectKey, m_RemovedObjectUID);
 	}
 };
 
 template<typename Key>
-class TRecordChanged : public TRecordContainer<Key>
+class TRecordChanged : public IRecord
 {
 private:
 	Key m_objectKey;
@@ -159,11 +213,37 @@ private:
 	ObjectUID m_newObjectUID;
 	std::weak_ptr<IRecordObject> m_pNewObject;
 	std::weak_ptr<IRecordObject> m_pOldObject;
+	ContainerRecordProxy<Key> m_proxy;
 
 public:
 	TRecordChanged(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
 		const std::weak_ptr<IRecordObject>& a_pOldObject) :
-		TRecordContainer<Key>(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }, m_pOldObject{ a_pOldObject }
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }, m_pOldObject{ a_pOldObject }
+	{
+		auto pObj = m_pNewObject.lock();
+		if (pObj)
+		{
+			m_newObjectUID = pObj->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+
+		pObj = m_pOldObject.lock();
+		if (pObj)
+		{
+			m_oldObjectUID = pObj->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	TRecordChanged(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
+		const std::weak_ptr<IRecordObject>& a_pOldObject) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }, m_pOldObject{ a_pOldObject }
 	{
 		auto pObj = m_pNewObject.lock();
 		if (pObj)
@@ -188,10 +268,10 @@ public:
 	virtual ~TRecordChanged() = default;
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{
-		auto pContainer = this->getContainer(a_memory);
+		auto pContainer = m_proxy.getContainer(a_memory);
 		if (pContainer)
 		{
-			auto pObj = m_pOldObject.lock();
+			MShared_ptr<IRecordObject> pObj = m_pOldObject.lock();
 			if (!pObj)
 				pObj = a_memory.realoc(m_oldObjectUID, std::weak_ptr<RTTIDefinition>());
 
@@ -214,6 +294,6 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordChanged<Key>>(this->getContainer(a_memory), m_objectKey, m_pOldObject, m_pNewObject);
+		return std::make_shared<TRecordChanged<Key>>(m_proxy, m_objectKey, m_pOldObject, m_pNewObject);
 	}
 };
