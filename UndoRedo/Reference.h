@@ -4,8 +4,6 @@
 
 class RefObject;
 
-
-
 class IRef
 {
     friend class RefObject;
@@ -25,6 +23,14 @@ public:
             if (m_nextRef)
                 m_nextRef->m_prevRef = m_prevRef;
         }
+    }
+
+    virtual void updateRefPointer(RefObject* const) = 0;
+
+    virtual void updateRef(RefObject* const a_pRef)
+    {
+        updateRefPointer(a_pRef);
+        m_nextRef->updateRef(a_pRef);
     }
 
     void appendRef(IRef* const a_ref)const
@@ -62,41 +68,9 @@ public:
     }
 
     IRef() = default;
-    virtual ~IRef()
-    {
-        //
-    }
+    virtual ~IRef() = default;
 
 };
-
-template<typename Type> requires std::is_base_of_v<RefObject, Type>
-class Ref;
-
-class RefObject
-{
-    friend  IRef;
-
-    template<typename Type> requires std::is_base_of_v<RefObject, Type>
-    friend class Ref;
-
-protected:
-    mutable IRef* m_RefList = nullptr;
-
-public:
-    RefObject()
-    {
-        //
-    }
-
-    ~RefObject()
-    {
-        if (m_RefList)
-            m_RefList->unref();
-    }
-
-};
-
-
 
 template<typename Type> requires std::is_base_of_v<RefObject, Type>
 class Ref : public IRef
@@ -106,6 +80,11 @@ class Ref : public IRef
 
 protected:
     Type* m_RefObject = nullptr;
+
+    void updateRefPointer(RefObject* const a_pRef)
+    {
+        m_RefObject = static_cast<Type*>(a_pRef);
+    }
 
     void reset()
     {
@@ -227,6 +206,51 @@ public:
     }
 
 };
+
+
+class RefObject
+{
+    friend  IRef;
+
+    template<typename Type> requires std::is_base_of_v<RefObject, Type>
+    friend class Ref;
+
+protected:
+    mutable IRef* m_RefList = nullptr;
+
+public:
+    RefObject()
+    {
+        //
+    }
+
+    RefObject(RefObject&& a_other)noexcept
+    {
+        m_RefList = a_other.m_RefList;
+        if (m_RefList)
+            m_RefList->updateRef(this);
+    }
+
+    ~RefObject()
+    {
+        if (m_RefList)
+            m_RefList->unref();
+    }
+
+    void operator = (RefObject& a_other)
+    {
+        // nothing to do but function must be declared to enable std::swap
+    }
+
+    void operator = (RefObject&& a_other)noexcept
+    {
+        m_RefList = a_other.m_RefList;
+        if (m_RefList)
+            m_RefList->updateRef(this);
+    }
+};
+
+
 
 template<typename T> //requires std::is_base_of_v<RefObject, T>
 Ref<T> make_ref(const T& a_object)
