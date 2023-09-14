@@ -8,59 +8,8 @@
 class RTTIDefinition;
 
 template<typename Key>
-class ContainerRecordProxy
-{
-private:
-	ObjectUID m_containerObjectUID;
-	TContainerProxy<Key> m_containerProxy;
-	std::weak_ptr<RTTIDefinition> m_pObjectDef;
+using TContainerRecordProxy = TRecordObjectProxy<TIContainer<Key>>;
 
-public:
-	ContainerRecordProxy(const TContainerProxy<Key>& a_pContainer) : m_containerProxy{ a_pContainer }
-	{
-		if (m_containerProxy.valid())
-		{
-			m_pObjectDef = m_containerProxy->isA();
-			m_containerObjectUID = m_containerProxy->uid();
-		}
-		else
-		{
-			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
-		}
-	}
-
-	ContainerRecordProxy(const ContainerRecordProxy<Key>& a_other) : m_containerProxy{ a_other.m_containerProxy }
-	{
-		if (m_containerProxy.valid())
-		{
-			m_pObjectDef = m_containerProxy->isA();
-			m_containerObjectUID = m_containerProxy->uid();
-		}
-		else
-		{
-			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
-		}
-	}
-
-	virtual ~ContainerRecordProxy() = default;
-
-	bool containerValid()const
-	{
-		return m_containerProxy.valid();
-	}
-
-	TIContainer<Key>* getContainer(RealocMemory& a_memory)
-	{
-		auto pObj = m_containerProxy.pointer();
-		if (nullptr == pObj && m_containerProxy.isShared())
-		{
-			m_containerProxy = MStatic_pointer_cast<TIContainer<Key>>(a_memory.realoc(m_containerObjectUID, m_pObjectDef));
-			pObj = m_containerProxy.pointer();
-		}
-
-		return pObj;
-	}
-};
 
 
 template<typename Key>
@@ -70,10 +19,10 @@ private:
 	Key m_objectKey;
 	ObjectUID m_newObjectUID;
 	std::weak_ptr<IRecordObject> m_pObject;
-	ContainerRecordProxy<Key> m_proxy;
+	TContainerRecordProxy<Key> m_proxy;
 
 public:
-	TRecordInsert(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
+	TRecordInsert(const TIContainer<Key>* a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pObject{ a_pNewObject }
 	{
 		auto pObj = m_pObject.lock();
@@ -87,13 +36,13 @@ public:
 		}
 	}
 
-	TRecordInsert(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const ObjectUID& a_objUID) :
+	TRecordInsert(const TIContainer<Key>* a_pContainer, const Key& a_key, const ObjectUID& a_objUID) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_newObjectUID{ a_objUID }
 	{
 		//
 	}
 
-	TRecordInsert(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
+	TRecordInsert(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pObject{ a_pNewObject }
 	{
 		auto pObj = m_pObject.lock();
@@ -107,7 +56,7 @@ public:
 		}
 	}
 
-	TRecordInsert(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const ObjectUID& a_objUID) :
+	TRecordInsert(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const ObjectUID& a_objUID) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_newObjectUID{ a_objUID }
 	{
 		//
@@ -117,10 +66,10 @@ public:
 
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{	
-		auto pContainer = m_proxy.getContainer(a_memory);
-		if (pContainer)
+
+		if (m_proxy.realocate(a_memory))
 		{
-			pContainer->record_eraseAt(m_objectKey);
+			m_proxy->record_eraseAt(m_objectKey);
 		}
 		else
 		{
@@ -142,10 +91,10 @@ private:
 	Key m_objectKey;
 	ObjectUID m_RemovedObjectUID;
 	std::weak_ptr<IRecordObject> m_pRemovedObject;
-	ContainerRecordProxy<Key> m_proxy;
+	TContainerRecordProxy<Key> m_proxy;
 
 public:
-	TRecordRemoved(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
+	TRecordRemoved(const TIContainer<Key>* a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pRemovedObject{ a_pRemovedObject }
 	{
 		auto pObj = m_pRemovedObject.lock();
@@ -159,7 +108,7 @@ public:
 		}
 	}
 
-	TRecordRemoved(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
+	TRecordRemoved(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pRemovedObject) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pRemovedObject{ a_pRemovedObject }
 	{
 		auto pObj = m_pRemovedObject.lock();
@@ -176,16 +125,15 @@ public:
 
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{
-		auto pContainer = m_proxy.getContainer(a_memory);
-		if (pContainer)
+		if (m_proxy.realocate(a_memory))
 		{
 			MShared_ptr<IRecordObject> pObj = m_pRemovedObject.lock();
-			if(!pObj)
+			if (!pObj)
 				pObj = a_memory.realoc(m_RemovedObjectUID);
 
 			if (pObj)
 			{
-				pContainer->record_insert(m_objectKey, pObj);
+				m_proxy->record_insert(m_objectKey, pObj);
 			}
 			else
 			{
@@ -213,10 +161,10 @@ private:
 	ObjectUID m_newObjectUID;
 	std::weak_ptr<IRecordObject> m_pNewObject;
 	std::weak_ptr<IRecordObject> m_pOldObject;
-	ContainerRecordProxy<Key> m_proxy;
+	TContainerRecordProxy<Key> m_proxy;
 
 public:
-	TRecordChanged(const TContainerProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
+	TRecordChanged(const TIContainer<Key>* a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
 		const std::weak_ptr<IRecordObject>& a_pOldObject) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }, m_pOldObject{ a_pOldObject }
 	{
@@ -241,7 +189,7 @@ public:
 		}
 	}
 
-	TRecordChanged(const ContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
+	TRecordChanged(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject,
 		const std::weak_ptr<IRecordObject>& a_pOldObject) :
 		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }, m_pOldObject{ a_pOldObject }
 	{
@@ -268,8 +216,7 @@ public:
 	virtual ~TRecordChanged() = default;
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{
-		auto pContainer = m_proxy.getContainer(a_memory);
-		if (pContainer)
+		if (m_proxy.realocate(a_memory))
 		{
 			MShared_ptr<IRecordObject> pObj = m_pOldObject.lock();
 			if (!pObj)
@@ -277,7 +224,7 @@ public:
 
 			if (pObj)
 			{
-				pContainer->record_replace(m_objectKey, pObj);
+				m_proxy->record_replace(m_objectKey, pObj);
 				m_pOldObject = pObj;
 			}
 			else

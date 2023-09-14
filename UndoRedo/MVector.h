@@ -69,7 +69,7 @@ protected:
         if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
         {
             RecordSession& curSession = UndoRedo::instance().currentSession();
-            curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(TContainerProxy<size_t>(this), a_pItem - VectorBase::data(), a_pAfter, a_pBefore));
+            curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(TRecordObjectProxy<TIContainer<size_t>>(this), a_pItem - VectorBase::data(), a_pAfter, a_pBefore));
         }
     }
 

@@ -148,6 +148,7 @@
     <ClInclude Include="RecordData.h" />
     <ClInclude Include="Reference.h" />
     <ClInclude Include="TIContainer.h" />
+    <ClInclude Include="TRecordObjectProxy.h" />
     <ClInclude Include="UndoRedoExceptionDefines.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IInputStream.h" />

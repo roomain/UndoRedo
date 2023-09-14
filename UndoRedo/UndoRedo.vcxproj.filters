@@ -147,6 +147,9 @@
     <ClInclude Include="RecordData.h">
       <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
     </ClInclude>
+    <ClInclude Include="TRecordObjectProxy.h">
+      <Filter>Fichiers d%27en-tête\Undo/Redo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
