@@ -61,8 +61,8 @@ namespace UndoRedo_tests
 			UndoRedo::instance().redo();
 			Assert::AreEqual(1, static_cast<int>(map.size()), L"Wrong size");
 
-			Assert::AreEqual(1, map.at(0)->iVal(), L"Wrong int");
-			Assert::AreEqual(3.14f, map.at(0)->fVal(), L"Wrong float");
+			Assert::AreEqual(1, map.at("test")->iVal(), L"Wrong int");
+			Assert::AreEqual(3.14f, map.at("test")->fVal(), L"Wrong float");
 			Assert::AreEqual(std::string("TEST_ADD"), map.at("test")->sVal(), L"Wrong string");
 
 			// test same pointer

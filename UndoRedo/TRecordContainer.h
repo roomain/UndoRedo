@@ -197,6 +197,45 @@ public:
 };
 
 template<typename Key>
+class TRecordEmptyRemoved : public IRecord
+{
+private:
+	Key m_objectKey;
+	TContainerRecordProxy<Key> m_proxy;
+
+public:
+	TRecordEmptyRemoved(const TIContainer<Key>* a_pContainer, const Key& a_key) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }
+	{
+	}
+
+	TRecordEmptyRemoved(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }
+	{
+		
+	}
+	virtual ~TRecordEmptyRemoved() = default;
+	bool hasReverse()const noexcept final { return false; }
+
+	void process(IInputStream& a_stream, RealocMemory& a_memory) final
+	{
+		if (m_proxy.realocate(a_memory))
+		{
+			m_proxy->record_insert(m_objectKey, nullptr);
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
+	{
+		return nullptr;
+	}
+};
+
+template<typename Key>
 class TRecordChanged : public IRecord
 {
 private:
@@ -286,5 +325,65 @@ public:
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
 		return std::make_shared<TRecordChanged<Key>>(m_proxy, m_objectKey, m_pOldObject, m_pNewObject);
+	}
+};
+
+
+template<typename Key>
+class TRecordEmptyChanged : public IRecord
+{
+private:
+	Key m_objectKey;
+	ObjectUID m_newObjectUID;
+	std::weak_ptr<IRecordObject> m_pNewObject;
+	TContainerRecordProxy<Key> m_proxy;
+
+public:
+	TRecordEmptyChanged(const TIContainer<Key>* a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }
+	{
+		auto pObj = m_pNewObject.lock();
+		if (pObj)
+		{
+			m_newObjectUID = pObj->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	TRecordEmptyChanged(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key, const std::weak_ptr<IRecordObject>& a_pNewObject) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pNewObject{ a_pNewObject }
+	{
+		auto pObj = m_pNewObject.lock();
+		if (pObj)
+		{
+			m_newObjectUID = pObj->uid();
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+
+	}
+	virtual ~TRecordEmptyChanged() = default;
+	//bool hasReverse()const noexcept final { return false; }
+	void process(IInputStream& a_stream, RealocMemory& a_memory) final
+	{
+		if (m_proxy.realocate(a_memory))
+		{
+			m_proxy->record_replace(m_objectKey, nullptr);
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
+	{
+		return std::make_shared<TRecordRemoved<Key>>(m_proxy, m_objectKey, m_pNewObject);
 	}
 };

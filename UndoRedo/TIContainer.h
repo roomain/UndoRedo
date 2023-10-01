@@ -19,10 +19,16 @@ template<typename Key>
 class TRecordRemoved;
 
 template<typename Key>
+class TRecordEmptyRemoved;
+
+template<typename Key>
 class TRecordEmptyCreate;
 
 template<typename Key>
 class TRecordChanged;
+
+template<typename Key>
+class TRecordEmptyChanged;
 
 template<typename Key>
 class TIContainer : public MShared_from_this<TIContainer<Key>>, public RefObject
@@ -31,6 +37,9 @@ class TIContainer : public MShared_from_this<TIContainer<Key>>, public RefObject
 	friend class TRecordInsert<Key>;
 	friend class TRecordRemoved<Key>;
 	friend class TRecordChanged<Key>;
+
+    friend class TRecordEmptyRemoved<Key>;
+    friend class TRecordEmptyChanged<Key>;
     friend class TRecordEmptyCreate<Key>;
 
 protected:

@@ -8,12 +8,12 @@
 
 template<typename Key, typename Type,
     class Compare = std::less<Key>> requires std::is_base_of_v<IRecordObject, Type>
-class MMap : public TIContainer<Key>, private std::map<Key,ContainerCell<Type>, Compare>
+class MMap : public TIContainer<Key>, private std::map<Key, ContainerKeyCell<Key,Type>, Compare>
 {
     //DECLARE_RTTI_DERIVED(1, MMap<Key, Type>, IRecordObject)
 private:
-    using MapBase = std::map<Key, ContainerCell<Type>>;
-    ChangeAssertion<Type> m_itemCallback;
+    using MapBase = std::map<Key, ContainerKeyCell<Key, Type>, Compare>;
+    ChangeAssertionKey<Key, Type> m_itemCallback;
     bool m_bActiveCallback = true;
 
 protected:
@@ -41,80 +41,91 @@ protected:
         }
     }
 
-    void assert_ItemChanged(const ContainerCell<Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
+    void assert_ItemChanged(const ContainerKeyCell<Key, Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
     {
         if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
         {
-            RecordSession& curSession = UndoRedo::instance().currentSession();
-            curSession.addRecord(std::make_shared<TRecordChanged<Key>>(TRecordObjectProxy<TIContainer<Key>>(this), a_pItem - MapBase::data(), a_pAfter, a_pBefore));
+            RecordSession& curSession = UndoRedo::instance().currentSession();   
+            if (a_pBefore)
+            {
+                curSession.addRecord(std::make_shared<TRecordChanged<Key>>(TRecordObjectProxy<TIContainer<Key>>(this),
+                    a_pItem->key(),
+                    a_pAfter, a_pBefore));
+            }
+            else
+            {
+                curSession.addRecord(std::make_shared<TRecordEmptyChanged<Key>>(TRecordObjectProxy<TIContainer<Key>>(this),
+                    a_pItem->key(),
+                    a_pAfter));
+            }
         }
     }
 
     template< class... Args >
-    ContainerCell<Type> createWithoutRecord(Args&&... args)
+    ContainerKeyCell<Key, Type> createWithoutRecord(const Key& a_key, Args&&... args)
     {
         TScoped<bool> scoped = UndoRedo::instance().scopedActivation();
         scoped = false;
-        return ContainerCell<Type>(args...);
+        return ContainerKeyCell<Key, Type>(a_key, m_itemCallback, args...);
     }
 
 public:
     MMap()
     {
-        // TODO
+        m_itemCallback = std::bind_front(&MMap<Key, Type>::assert_ItemChanged, this);
     }
 
 
-    using iterator = std::map < Key, ContainerCell<Type>>::iterator;
-    using const_iterator = std::map < Key, ContainerCell<Type>>::const_iterator;
+    using iterator = std::map <Key, ContainerKeyCell<Key, Type>, Compare>::iterator;
+    using const_iterator = std::map < Key, ContainerKeyCell<Key, Type>, Compare>::const_iterator;
 
-    template< class... Args >
-    std::pair<iterator, bool> try_emplace(const Key& k, Args&&... args)
+    /*template< class... Args >
+    std::pair<iterator, bool> try_emplace(const Key& a_key, Args&&... args)
     {
-        return MapBase::try_emplace(k, createWithoutRecord(args...));
-    }
-
-    template< class... Args >
-    std::pair<iterator, bool> try_emplace(Key&& k, Args&&... args)
-    {
-        return MapBase::try_emplace(k, createWithoutRecord(args...));
+        return MapBase::try_emplace(a_key, createWithoutRecord(a_key,args...));
     }
 
     template< class... Args >
-    iterator try_emplace(const_iterator hint, const Key& k, Args&&... args)
+    std::pair<iterator, bool> try_emplace(Key&& a_key, Args&&... args)
     {
-        return MapBase::try_emplace(hint, k, createWithoutRecord(args...));
+        return MapBase::try_emplace(a_key, createWithoutRecord(a_key, args...));
     }
 
     template< class... Args >
-    iterator try_emplace(const_iterator hint, Key&& k, Args&&... args)
+    iterator try_emplace(const_iterator hint, const Key& a_key, Args&&... args)
     {
-        return MapBase::try_emplace(hint, k, createWithoutRecord(args...));
+        return MapBase::try_emplace(hint, a_key, createWithoutRecord(a_key, args...));
     }
 
-    ContainerCell<Type>& operator[](const Key& a_index)
+    template< class... Args >
+    iterator try_emplace(const_iterator hint, Key&& a_key, Args&&... args)
     {
-        std::pair<iterator, bool> ret = try_emplace(a_index, createWithoutRecord());
+        return MapBase::try_emplace(hint, a_key, createWithoutRecord(a_key, args...));
+    }*/
+
+    ContainerKeyCell<Key, Type>& operator[](const Key& a_key)
+    {
+        std::pair<iterator, bool> ret = MapBase::try_emplace(a_key, a_key, m_itemCallback);
         if (ret.second)
         {
             // item empty
-            this->assert_EmptyCreate(a_index);
+            this->assert_EmptyCreate(a_key);
         }
         return ret.first->second;
     }
    
-    using std::map<Key, ContainerCell<Type>>::at;
-    using std::map<Key, ContainerCell<Type>>::begin;
-    using std::map<Key, ContainerCell<Type>>::end;
-    using std::map<Key, ContainerCell<Type>>::cbegin;
-    using std::map<Key, ContainerCell<Type>>::cend;
-    using std::map<Key, ContainerCell<Type>>::rbegin;
-    using std::map<Key, ContainerCell<Type>>::rend;
-    using std::map<Key, ContainerCell<Type>>::crbegin;
-    using std::map<Key, ContainerCell<Type>>::crend;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::at;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::begin;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::end;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::cbegin;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::cend;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::rbegin;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::rend;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::crbegin;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::crend;
 
-    using std::map<Key, ContainerCell<Type>>::size;
-    using std::map<Key, ContainerCell<Type>>::max_size;
-    using std::map<Key, ContainerCell<Type>>::empty;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::size;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::max_size;
+    using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::empty;
 };
 
