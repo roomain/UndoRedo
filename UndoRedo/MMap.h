@@ -32,6 +32,15 @@ protected:
         MapBase::erase(a_index);
     }
 
+    void assert_EmptyCreate(const Key& a_index)
+    {
+        if (UndoRedo::instance().sessionStarted())
+        {
+            RecordSession& curSession = UndoRedo::instance().currentSession();
+            curSession.addRecord(std::make_shared<TRecordEmptyCreate<Key>>(TRecordObjectProxy<TIContainer<Key>>(this), a_index));
+        }
+    }
+
     void assert_ItemChanged(const ContainerCell<Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
     {
         if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
@@ -89,7 +98,7 @@ public:
         if (ret.second)
         {
             // item empty
-            TIContainer<Key>::assert_ItemAdd(ret.first->second, a_index);
+            this->assert_EmptyCreate(a_index);
         }
         return ret.first->second;
     }

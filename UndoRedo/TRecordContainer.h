@@ -85,6 +85,50 @@ public:
 };
 
 template<typename Key>
+class TRecordEmptyCreate : public IRecord
+{
+private:
+	Key m_objectKey;
+	TContainerRecordProxy<Key> m_proxy;
+
+public:
+	TRecordEmptyCreate(const TIContainer<Key>* a_pContainer, const Key& a_key) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }
+	{
+	}
+
+	TRecordEmptyCreate(const TContainerRecordProxy<Key>& a_pContainer, const Key& a_key) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }
+	{
+	}
+
+
+	bool hasReverse()const noexcept final{ return false; }
+
+	virtual ~TRecordEmptyCreate() = default;
+
+	void process(IInputStream& a_stream, RealocMemory& a_memory) final
+	{
+
+		if (m_proxy.realocate(a_memory))
+		{
+			m_proxy->record_eraseAt(m_objectKey);
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
+	{
+		return nullptr;
+	}
+
+};
+
+
+template<typename Key>
 class TRecordRemoved : public IRecord
 {
 private:
