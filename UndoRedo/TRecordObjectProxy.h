@@ -63,7 +63,8 @@ private:
 		{
 			if (a_ptr.expired())
 			{
-				a_ptr = MStatic_pointer_cast<Type>(m_memory->realoc(m_objID, m_pDef));
+				if constexpr (std::is_base_of_v<IRecordObject, Type>)
+					a_ptr = MStatic_pointer_cast<Type>(m_memory->realoc(m_objID, m_pDef));
 			}
 			return !a_ptr.expired();
 		}
@@ -76,10 +77,13 @@ private:
 
 public:
 	TRecordObjectProxy() = delete;
-	TRecordObjectProxy(Type* const a_object) : 
-		m_objectUID{ a_object->uid()},
-		m_pObjectDef{ a_object->isA()}
+	TRecordObjectProxy(Type* const a_object)
 	{
+		if constexpr (std::is_base_of_v<IRecordObject, Type>)
+		{
+			m_objectUID = a_object->uid();
+			m_pObjectDef = a_object->isA();
+		}
 		if (a_object->isShared())
 		{
 			m_proxyObj = std::dynamic_pointer_cast<Type>(a_object->shared_from_this());

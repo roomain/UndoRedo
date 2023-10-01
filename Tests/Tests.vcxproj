@@ -160,8 +160,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="TestMap.cpp" />
     <ClCompile Include="TestRecordObject.cpp" />
     <ClCompile Include="Tests.cpp" />
+    <ClCompile Include="TestsVector.cpp" />
+    <ClCompile Include="Tests_ref.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestRecordObject.h" />

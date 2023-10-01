@@ -23,16 +23,16 @@ template<typename Key>
 class TRecordChanged;
 
 template<typename Key>
-class TIContainer : public IRecordObject
+class TIContainer : public MShared_from_this<TIContainer<Key>>, public RefObject
 {
-    DECLARE_RTTI_DERIVED(1, TIContainer<Key>, IRecordObject)
+    //DECLARE_RTTI_DERIVED(1, TIContainer<Key>, IRecordObject)
 	friend class TRecordInsert<Key>;
 	friend class TRecordRemoved<Key>;
 	friend class TRecordChanged<Key>;
 
 protected:
 
-	virtual void record_replace(const size_t& a_key, const IRecordObjectPtr& a_object) = 0;
+	virtual void record_replace(const Key& a_key, const IRecordObjectPtr& a_object) = 0;
 	virtual void record_insert(const Key& a_key, const IRecordObjectPtr& a_value) = 0;
 	virtual void record_eraseAt(const Key& a_key) = 0;
 

@@ -210,12 +210,12 @@ public:
 
 class RefObject
 {
-    friend  IRef;
+    //friend  IRef;
 
     template<typename Type> requires std::is_base_of_v<RefObject, Type>
     friend class Ref;
 
-protected:
+private:
     mutable IRef* m_RefList = nullptr;
 
 public:

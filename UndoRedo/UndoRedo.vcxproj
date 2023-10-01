@@ -144,11 +144,13 @@
     <ClInclude Include="ContainerCell.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="MMap.h" />
     <ClInclude Include="MVector.h" />
     <ClInclude Include="RecordData.h" />
     <ClInclude Include="Reference.h" />
     <ClInclude Include="TIContainer.h" />
     <ClInclude Include="TRecordObjectProxy.h" />
+    <ClInclude Include="TScoped.h" />
     <ClInclude Include="UndoRedoExceptionDefines.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IInputStream.h" />

@@ -4,6 +4,7 @@
 #include <string_view>
 #include "RecordSession.h"
 #include "RealocMemory.h"
+#include "TScoped.h"
 #include "UndoRedo_globals.h"
 
 #pragma warning(push)
@@ -31,6 +32,11 @@ public:
 	[[nodiscard]] bool hasRedo()const;
 	RecordSession& currentSession();
 	bool sessionStarted()const;
+	bool hasActiveSession()const { return m_HasActiveSession; }
+	TScoped<bool>&& scopedActivation() noexcept
+	{
+		return std::move(TScoped<bool>(m_HasActiveSession));
+	}
 	void undo();
 	void redo();
 	void clear();

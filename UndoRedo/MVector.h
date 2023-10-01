@@ -9,7 +9,7 @@
 template<typename Type> requires std::is_base_of_v<IRecordObject, Type>
 class MVector : public TIContainer<size_t>, private std::vector<ContainerCell<Type>>
 {
-    DECLARE_RTTI_DERIVED(1, MVector<Type>, IRecordObject)
+    //DECLARE_RTTI_DERIVED(1, MVector<Type>, IRecordObject)
 private:
 	using VectorBase = std::vector<ContainerCell<Type>>;
 	ChangeAssertion<Type> m_itemCallback;
@@ -46,23 +46,6 @@ protected:
             VectorBase::erase(begin() + a_index);
     }
 
-    //void assert_ItemAdd(const MShared_ptr<Type>& a_pItem, const size_t& a_index)
-    //{
-    //    if (UndoRedo::instance().sessionStarted())
-    //    {
-    //        RecordSession& curSession = UndoRedo::instance().currentSession();
-    //        curSession.addRecord(std::make_shared<TRecordInsert<size_t>>(TContainerProxy<size_t>(this), a_index, a_pItem));
-    //    }
-    //}
-    //
-    //void assert_ItemRemoved(const MShared_ptr<Type>& a_pItem, const size_t& a_index)
-    //{
-    //    if (UndoRedo::instance().sessionStarted())
-    //    {
-    //        RecordSession& curSession = UndoRedo::instance().currentSession();
-    //        curSession.addRecord(std::make_shared<TRecordRemoved<size_t>>(TContainerProxy<size_t>(this), a_index, a_pItem));
-    //    }
-    //}
 
     void assert_ItemChanged(const ContainerCell<Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
     {
@@ -225,7 +208,7 @@ public:
         VectorBase::pop_back();
     }
 
-    virtual unsigned short load(IInputStream& a_stream)override
+    /*virtual unsigned short load(IInputStream& a_stream)override
     {
         //Object::load(a_stream);
         size_t size;
@@ -239,7 +222,6 @@ public:
         return isA()->version();
     }
 
-    /*@brief save object to stream*/
     virtual bool save(IOutputStream& a_stream)const override
     {
         //Object::save(a_stream);
@@ -247,5 +229,5 @@ public:
         for (const auto& obj : (const VectorBase)*this)
             a_stream << obj.get()->uid();
         return true;
-    }
+    }*/
 };
