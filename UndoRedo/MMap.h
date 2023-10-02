@@ -41,6 +41,15 @@ protected:
         }
     }
 
+    void assert_EmptyRemoved(const Key& a_index)
+    {
+        if (UndoRedo::instance().sessionStarted())
+        {
+            RecordSession& curSession = UndoRedo::instance().currentSession();
+            curSession.addRecord(std::make_shared<TRecordEmptyRemoved<Key>>(TRecordObjectProxy<TIContainer<Key>>(this), a_index));
+        }
+    }
+
     void assert_ItemChanged(const ContainerKeyCell<Key, Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
     {
         if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
@@ -61,14 +70,6 @@ protected:
         }
     }
 
-    template< class... Args >
-    ContainerKeyCell<Key, Type> createWithoutRecord(const Key& a_key, Args&&... args)
-    {
-        TScoped<bool> scoped = UndoRedo::instance().scopedActivation();
-        scoped = false;
-        return ContainerKeyCell<Key, Type>(a_key, m_itemCallback, args...);
-    }
-
 public:
     MMap()
     {
@@ -79,39 +80,113 @@ public:
     using iterator = std::map <Key, ContainerKeyCell<Key, Type>, Compare>::iterator;
     using const_iterator = std::map < Key, ContainerKeyCell<Key, Type>, Compare>::const_iterator;
 
-    /*template< class... Args >
+    template< class... Args >
     std::pair<iterator, bool> try_emplace(const Key& a_key, Args&&... args)
     {
-        return MapBase::try_emplace(a_key, createWithoutRecord(a_key,args...));
+        std::pair<iterator, bool> pair = MapBase::try_emplace(a_key, a_key, m_itemCallback);
+        if (pair.second)
+        {
+            if (*pair.first)
+            {
+                // item empty
+                this->assert_EmptyCreate(a_key);
+            }
+            else
+            {
+                this->assert_ItemAdd(*pair.first, a_key);
+            }
+        }
+        return pair;
     }
 
     template< class... Args >
     std::pair<iterator, bool> try_emplace(Key&& a_key, Args&&... args)
     {
-        return MapBase::try_emplace(a_key, createWithoutRecord(a_key, args...));
+        std::pair<iterator, bool> pair = MapBase::try_emplace(std::move(a_key), a_key, m_itemCallback);
+        if (pair.second)
+        {
+            if (*pair.first)
+            {
+                // item empty
+                this->assert_EmptyCreate(a_key);
+            }
+            else
+            {
+                this->assert_ItemAdd(*pair.first, a_key);
+            }
+        }
+        return pair;
     }
 
-    template< class... Args >
-    iterator try_emplace(const_iterator hint, const Key& a_key, Args&&... args)
-    {
-        return MapBase::try_emplace(hint, a_key, createWithoutRecord(a_key, args...));
-    }
-
-    template< class... Args >
-    iterator try_emplace(const_iterator hint, Key&& a_key, Args&&... args)
-    {
-        return MapBase::try_emplace(hint, a_key, createWithoutRecord(a_key, args...));
-    }*/
 
     ContainerKeyCell<Key, Type>& operator[](const Key& a_key)
     {
-        std::pair<iterator, bool> ret = MapBase::try_emplace(a_key, a_key, m_itemCallback);
-        if (ret.second)
+        std::pair<iterator, bool> pair = MapBase::try_emplace(a_key, a_key, m_itemCallback);
+        if (pair.second)
         {
             // item empty
             this->assert_EmptyCreate(a_key);
         }
-        return ret.first->second;
+        return pair.first->second;
+    }
+
+    iterator erase(iterator a_pos)
+    {
+        if (*a_pos.second)
+        {
+            this->assert_ItemRemoved(*a_pos.second, a_pos.first);
+        }
+        else
+        {
+            this->assert_EmptyRemoved(a_pos.first);
+        }
+        return MapBase::erase(a_pos);
+    }
+
+    iterator erase(const_iterator a_pos)
+    {
+        if (*a_pos.second)
+        {
+            this->assert_ItemRemoved(*a_pos.second, a_pos.first);
+        }
+        else
+        {
+            this->assert_EmptyRemoved(a_pos.first);
+        }
+        return MapBase::erase(a_pos);
+    }
+
+    iterator erase(const_iterator a_first, const_iterator a_last)
+    {
+        std::for_each(a_first, a_last, [](auto a_iterator)
+            {
+                if (*a_iterator.second)
+                {
+                    this->assert_ItemRemoved(*a_iterator.second, a_iterator.first);
+                }
+                else
+                {
+                    this->assert_EmptyRemoved(a_iterator.first);
+                }
+            });
+        return MapBase::erase(a_first, a_last);
+    }
+
+    size_t erase(const Key& a_key)
+    {
+        auto iter = MapBase::find(a_key);
+        if (iter != end())
+        {
+            if (iter->second)
+            {
+                this->assert_ItemRemoved(iter->second, iter->first);
+            }
+            else
+            {
+                this->assert_EmptyRemoved(iter->first);
+            }
+        }
+        return MapBase::erase(a_key);
     }
    
     using std::map<Key, ContainerKeyCell<Key, Type>, Compare>::at;

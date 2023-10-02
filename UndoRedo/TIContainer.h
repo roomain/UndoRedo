@@ -60,7 +60,7 @@ protected:
     }
 
     template<typename Type>
-    void assert_ItemRemoved(const MShared_ptr<Type>& a_pItem, const size_t& a_index)
+    void assert_ItemRemoved(const MShared_ptr<Type>& a_pItem, const Key& a_index)
     {
         if (UndoRedo::instance().sessionStarted())
         {
