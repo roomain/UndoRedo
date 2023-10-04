@@ -6,6 +6,7 @@
 #include "TestRecordObject.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+class Test{};
 
 namespace UndoRedo_tests
 {
@@ -28,7 +29,11 @@ namespace UndoRedo_tests
 		{
 			UndoRedo::instance().clear();
 		}
-
+		TEST_METHOD(Test_MShared)
+		{
+			auto pTest = make_MShared<Test>();
+			Assert::IsNotNull(pTest.get(), L"Null");
+		}
 		TEST_METHOD(Test_scopedActivation)
 		{
 			Assert::IsFalse(UndoRedo::instance().hasActiveSession(), L"Active session");
