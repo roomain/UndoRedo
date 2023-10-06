@@ -18,7 +18,7 @@ void RecordSession::undo(RealocMemory& a_memory)
 	{
 		if (bGenRedoRecord && pRecord->hasReverse())
 		{
-			m_redoRecord.push_back(pRecord->reverse(a_memory, m_saveStream));
+			m_redoRecord.push_front(pRecord->reverse(a_memory, m_saveStream));
 		}
 		pRecord->process(m_loadStream, a_memory);
 	}

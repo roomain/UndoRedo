@@ -3,6 +3,9 @@
 #include "MMemory.h"
 
 template<typename Type>
+class TIContainer;
+
+template<typename Type>
 class ContainerCell;
 
 template<typename Type>
@@ -11,11 +14,19 @@ using ChangeAssertion = std::function<void(const ContainerCell<Type>*, const MSh
 template<typename Type>
 class ContainerCell : public MShared_ptr<Type>
 {
+	friend TIContainer< Type>;
+
 private:
 	ChangeAssertion<Type> m_changeAssert;
 
+
 public:
 	ContainerCell() = default;
+
+	void setChangeCallback(const ChangeAssertion<Type>& a_assertCB)
+	{
+		m_changeAssert = a_assertCB;
+	}
 
 	explicit ContainerCell(ContainerCell<Type>&& a_other)noexcept : MShared_ptr<Type>(std::move(a_other)),
 		m_changeAssert{ a_other.m_changeAssert }

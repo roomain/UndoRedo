@@ -10,8 +10,6 @@ class RTTIDefinition;
 template<typename Key>
 using TContainerRecordProxy = TRecordObjectProxy<TIContainer<Key>>;
 
-
-
 template<typename Key>
 class TRecordInsert : public IRecord
 {
@@ -103,7 +101,7 @@ public:
 	}
 
 
-	bool hasReverse()const noexcept final{ return false; }
+	//bool hasReverse()const noexcept final{ return false; }
 
 	virtual ~TRecordEmptyCreate() = default;
 
@@ -122,7 +120,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return nullptr;
+		return std::make_shared<TRecordEmptyRemoved<Key>>(m_proxy, m_objectKey);
 	}
 
 };
@@ -215,7 +213,7 @@ public:
 		
 	}
 	virtual ~TRecordEmptyRemoved() = default;
-	bool hasReverse()const noexcept final { return false; }
+	//bool hasReverse()const noexcept final { return false; }
 
 	void process(IInputStream& a_stream, RealocMemory& a_memory) final
 	{
@@ -231,7 +229,7 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return nullptr;
+		return std::make_shared<TRecordEmptyCreate<Key>>(m_proxy, m_objectKey);
 	}
 };
 
@@ -328,6 +326,8 @@ public:
 	}
 };
 
+template<typename Key>
+class TRecordEmptyChangedRev;
 
 template<typename Key>
 class TRecordEmptyChanged : public IRecord
@@ -384,6 +384,62 @@ public:
 
 	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
 	{
-		return std::make_shared<TRecordRemoved<Key>>(m_proxy, m_objectKey, m_pNewObject);
+		return std::make_shared<TRecordEmptyChangedRev<Key>>(m_proxy, m_objectKey, m_pNewObject, m_newObjectUID);
+	}
+};
+
+
+template<typename Key>
+class TRecordEmptyChangedRev : public IRecord
+{
+private:
+	Key m_objectKey;
+	ObjectUID m_oldObjectUID;
+	std::weak_ptr<IRecordObject> m_pOldObject;
+	TContainerRecordProxy<Key> m_proxy;
+
+public:
+	TRecordEmptyChangedRev(const TIContainer<Key>* a_pContainer, const Key& a_key, 
+		const std::weak_ptr<IRecordObject>& a_pOldObject, const ObjectUID& oldObjectUID) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pOldObject{ a_pOldObject }, m_oldObjectUID{ oldObjectUID }
+	{
+	}
+	TRecordEmptyChangedRev(const TContainerRecordProxy<Key> a_pContainer, const Key& a_key,
+		const std::weak_ptr<IRecordObject>& a_pOldObject, const ObjectUID& oldObjectUID) :
+		m_proxy(a_pContainer), m_objectKey{ a_key }, m_pOldObject{ a_pOldObject }, m_oldObjectUID{ oldObjectUID }
+	{
+	}
+	
+	virtual ~TRecordEmptyChangedRev() = default;
+	bool hasReverse()const noexcept final { return false; }
+	void process(IInputStream& a_stream, RealocMemory& a_memory) final
+	{
+		if (m_proxy.realocate(a_memory))
+		{
+			MShared_ptr<IRecordObject> pObj = m_pOldObject.lock();
+			if (!pObj)
+				pObj = a_memory.realoc(m_oldObjectUID, std::weak_ptr<RTTIDefinition>());
+
+			if (pObj)
+			{
+				m_proxy->record_replace(m_objectKey, pObj);
+				m_pOldObject = pObj;
+			}
+			else
+			{
+				// LOG
+			}
+		}
+		else
+		{
+			UNDO_REDO_TROW(UndoRedoException::ExceptionType::Except_Deleted)
+		}
+	}
+
+
+	std::shared_ptr<IRecord> reverse(RealocMemory& a_memory, IOutputStream& a_stream) final
+	{
+		return nullptr;
+		//return std::make_shared<TRecordRemoved<Key>>(m_proxy, m_objectKey, m_pNewObject);
 	}
 };

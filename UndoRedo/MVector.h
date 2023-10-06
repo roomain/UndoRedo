@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <vector>
+#include <execution>
 #include "MMemory.h"
 #include "TIContainer.h"
 #include "TRecordContainer.h"
@@ -52,7 +53,18 @@ protected:
         if (m_bActiveCallback && UndoRedo::instance().sessionStarted())
         {
             RecordSession& curSession = UndoRedo::instance().currentSession();
-            curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(TRecordObjectProxy<TIContainer<size_t>>(this), a_pItem - VectorBase::data(), a_pAfter, a_pBefore));
+            if (a_pBefore)
+            {
+                curSession.addRecord(std::make_shared<TRecordChanged<size_t>>(TRecordObjectProxy<TIContainer<size_t>>(this),
+                    a_pItem - VectorBase::data(),
+                    a_pAfter, a_pBefore));
+            }
+            else
+            {
+                curSession.addRecord(std::make_shared<TRecordEmptyChanged<size_t>>(TRecordObjectProxy<TIContainer<size_t>>(this),
+                    a_pItem - VectorBase::data(),
+                    a_pAfter));
+            }
         }
     }
 
@@ -64,10 +76,24 @@ public:
     }
     explicit MVector(const size_t& size) : std::vector<ContainerCell<Type>>(size) {
         m_itemCallback = std::bind_front(&MVector<Type>::assert_ItemChanged, this);
+        std::for_each(std::execution::par, VectorBase::begin(), VectorBase::end(),
+            [this](auto& a_cell)
+            {
+                a_cell.setChangeCallback(m_itemCallback);
+            });
     }
 
     size_t size() const noexcept { return VectorBase::size(); }
-    constexpr void reserve(const size_t& a_cap) { VectorBase::reserve(a_cap); }
+    void reserve(const size_t& a_cap)
+    { 
+        VectorBase::reserve(a_cap); 
+        std::for_each(std::execution::par, VectorBase::begin(), VectorBase::end(),
+            [this](auto& a_cell)
+            {
+                a_cell.setChangeCallback(m_itemCallback);
+            });
+    }
+
     bool empty()const noexcept { return VectorBase::empty(); }
 
     void clear()

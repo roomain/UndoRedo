@@ -34,6 +34,7 @@ namespace UndoRedo_tests
 		}
 
 
+
 		TEST_METHOD(Test_undo_add)
 		{
 			auto pVect = make_MShared<MVector<TestRecordObject>>();
@@ -125,6 +126,36 @@ namespace UndoRedo_tests
 			Assert::IsTrue(pVect.at(0) == ptr, L"Not same pointer");
 		}
 		//-------------------------------------------------------------------------------------------------
+
+		TEST_METHOD(Test_reserve_add)
+		{
+			MVector<TestRecordObject> vec(5);
+			auto ptr = make_MShared<TestRecordObject>();
+			ptr->setValue(1);
+			ptr->setValue(3.14f);
+			ptr->setValue("TEST_1");
+
+			UndoRedo::instance().startSession("Test_change");
+			vec.operator[](0) = ptr;
+			UndoRedo::instance().endSession();
+			UndoRedo::instance().undo();
+			Assert::IsTrue(vec.at(0).get() == nullptr, L"Not same pointer undo");
+			UndoRedo::instance().redo();
+			Assert::IsTrue(vec.at(0) == ptr, L"Not same pointer redo");
+		}
+
+		TEST_METHOD(Test_reserve_remove)
+		{
+			MVector<TestRecordObject> vec(5);
+
+			UndoRedo::instance().startSession("Test_pop");
+			vec.pop_back();
+			UndoRedo::instance().endSession();
+			UndoRedo::instance().undo();
+			Assert::IsTrue(vec.size() == 5, L"Not same size undo");
+			UndoRedo::instance().redo();
+			Assert::IsTrue(vec.size() == 4, L"Not same size redo");
+		}
 
 		TEST_METHOD(Test_undo_change)
 		{

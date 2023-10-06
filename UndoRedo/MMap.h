@@ -32,23 +32,6 @@ protected:
         MapBase::erase(a_index);
     }
 
-    void assert_EmptyCreate(const Key& a_index)
-    {
-        if (UndoRedo::instance().sessionStarted())
-        {
-            RecordSession& curSession = UndoRedo::instance().currentSession();
-            curSession.addRecord(std::make_shared<TRecordEmptyCreate<Key>>(TRecordObjectProxy<TIContainer<Key>>(this), a_index));
-        }
-    }
-
-    void assert_EmptyRemoved(const Key& a_index)
-    {
-        if (UndoRedo::instance().sessionStarted())
-        {
-            RecordSession& curSession = UndoRedo::instance().currentSession();
-            curSession.addRecord(std::make_shared<TRecordEmptyRemoved<Key>>(TRecordObjectProxy<TIContainer<Key>>(this), a_index));
-        }
-    }
 
     void assert_ItemChanged(const ContainerKeyCell<Key, Type>* a_pItem, const MShared_ptr<Type>& a_pBefore, const MShared_ptr<Type>& a_pAfter)
     {
@@ -86,15 +69,7 @@ public:
         std::pair<iterator, bool> pair = MapBase::try_emplace(a_key, a_key, m_itemCallback);
         if (pair.second)
         {
-            if (*pair.first)
-            {
-                // item empty
-                this->assert_EmptyCreate(a_key);
-            }
-            else
-            {
-                this->assert_ItemAdd(*pair.first, a_key);
-            }
+            TIContainer<Key>::assert_ItemAdd(pair.first->second, a_key);
         }
         return pair;
     }
@@ -105,15 +80,7 @@ public:
         std::pair<iterator, bool> pair = MapBase::try_emplace(std::move(a_key), a_key, m_itemCallback);
         if (pair.second)
         {
-            if (*pair.first)
-            {
-                // item empty
-                this->assert_EmptyCreate(a_key);
-            }
-            else
-            {
-                this->assert_ItemAdd(*pair.first, a_key);
-            }
+            TIContainer<Key>::assert_ItemAdd(pair.first->second, a_key);
         }
         return pair;
     }
@@ -124,35 +91,20 @@ public:
         std::pair<iterator, bool> pair = MapBase::try_emplace(a_key, a_key, m_itemCallback);
         if (pair.second)
         {
-            // item empty
-            this->assert_EmptyCreate(a_key);
+            TIContainer<Key>::assert_ItemAdd(pair.first->second, a_key);
         }
         return pair.first->second;
     }
 
     iterator erase(iterator a_pos)
     {
-        if (*a_pos.second)
-        {
-            this->assert_ItemRemoved(*a_pos.second, a_pos.first);
-        }
-        else
-        {
-            this->assert_EmptyRemoved(a_pos.first);
-        }
+        this->assert_ItemRemoved(a_pos.first);
         return MapBase::erase(a_pos);
     }
 
     iterator erase(const_iterator a_pos)
     {
-        if (*a_pos.second)
-        {
-            this->assert_ItemRemoved(*a_pos.second, a_pos.first);
-        }
-        else
-        {
-            this->assert_EmptyRemoved(a_pos.first);
-        }
+        this->assert_ItemRemoved(a_pos.first);
         return MapBase::erase(a_pos);
     }
 
@@ -160,14 +112,7 @@ public:
     {
         std::for_each(a_first, a_last, [](auto a_iterator)
             {
-                if (*a_iterator.second)
-                {
-                    this->assert_ItemRemoved(*a_iterator.second, a_iterator.first);
-                }
-                else
-                {
-                    this->assert_EmptyRemoved(a_iterator.first);
-                }
+                this->assert_ItemRemoved(*a_iterator.second, a_iterator.first);
             });
         return MapBase::erase(a_first, a_last);
     }
@@ -177,14 +122,7 @@ public:
         auto iter = MapBase::find(a_key);
         if (iter != end())
         {
-            if (iter->second)
-            {
-                this->assert_ItemRemoved(iter->second, iter->first);
-            }
-            else
-            {
-                this->assert_EmptyRemoved(iter->first);
-            }
+            this->assert_ItemRemoved(iter->second, iter->first);
         }
         return MapBase::erase(a_key);
     }
