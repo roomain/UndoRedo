@@ -83,17 +83,11 @@ public:
             });
     }
 
-    size_t size() const noexcept { return VectorBase::size(); }
-    void reserve(const size_t& a_cap)
-    { 
-        VectorBase::reserve(a_cap); 
-        std::for_each(std::execution::par, VectorBase::begin(), VectorBase::end(),
-            [this](auto& a_cell)
-            {
-                a_cell.setChangeCallback(m_itemCallback);
-            });
-    }
+    using VectorBase::capacity;
+    using VectorBase::reserve;
 
+    size_t size() const noexcept { return VectorBase::size(); }
+    
     bool empty()const noexcept { return VectorBase::empty(); }
 
     void clear()
@@ -233,27 +227,4 @@ public:
         assert_ItemRemoved(pt, VectorBase::size() - 1);
         VectorBase::pop_back();
     }
-
-    /*virtual unsigned short load(IInputStream& a_stream)override
-    {
-        //Object::load(a_stream);
-        size_t size;
-        a_stream >> size;
-        VectorBase::reserve(size);
-        for (size_t i = 0; i < size; ++i)
-        {
-            // TODO
-        }
-
-        return isA()->version();
-    }
-
-    virtual bool save(IOutputStream& a_stream)const override
-    {
-        //Object::save(a_stream);
-        a_stream << size();
-        for (const auto& obj : (const VectorBase)*this)
-            a_stream << obj.get()->uid();
-        return true;
-    }*/
 };

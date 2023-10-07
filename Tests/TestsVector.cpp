@@ -127,22 +127,28 @@ namespace UndoRedo_tests
 		}
 		//-------------------------------------------------------------------------------------------------
 
-		TEST_METHOD(Test_reserve_add)
+		TEST_METHOD(Test_ctor)
 		{
 			MVector<TestRecordObject> vec(5);
 			auto ptr = make_MShared<TestRecordObject>();
 			ptr->setValue(1);
 			ptr->setValue(3.14f);
 			ptr->setValue("TEST_1");
+			Assert::AreEqual(5, static_cast<int>(vec.size()), L"Wrong size");
 
 			UndoRedo::instance().startSession("Test_change");
 			vec.operator[](0) = ptr;
 			UndoRedo::instance().endSession();
 			UndoRedo::instance().undo();
+			Assert::AreEqual(5, static_cast<int>(vec.size()), L"Wrong size");
 			Assert::IsTrue(vec.at(0).get() == nullptr, L"Not same pointer undo");
 			UndoRedo::instance().redo();
 			Assert::IsTrue(vec.at(0) == ptr, L"Not same pointer redo");
+			Assert::AreEqual(5, static_cast<int>(vec.size()), L"Wrong size");
 		}
+
+
+		
 
 		TEST_METHOD(Test_reserve_remove)
 		{
