@@ -21,6 +21,9 @@ public:
     enum{value = sizeof(is_enable<Type>(0)) == sizeof(TrueType) };
 };
 
+template<typename Type>
+using is_enable_shared_v = is_enable_shared<Type>::value;
+
 template<typename T>
 class MShared_from_this
 {
@@ -69,11 +72,15 @@ public:
     }
 };
 
+
+template<typename Type>
+constexpr auto is_enable_shared_v = is_enable_shared<Type>::value;
+
 template<typename T, typename ...Args>
 MShared_ptr<T> make_MShared(Args&& ...arg)
 {
     MShared_ptr<T> pObj = std::make_shared<T>(arg...);    
-    if constexpr (is_enable_shared<T>::value)
+    if constexpr (is_enable_shared_v<T>)
         pObj->m_Wptr = pObj;
     return pObj;
 }
